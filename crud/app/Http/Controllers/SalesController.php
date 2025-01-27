@@ -30,7 +30,7 @@ class SalesController extends Controller
      */
     public function store(StoreSalesRequest $request)
     {
-        $sale = Sale::create([
+        $sale = Sales::create([
             'user_id' => auth()->id(),
             'status' => 'pending',
             'total_amount' => $request->total_amount

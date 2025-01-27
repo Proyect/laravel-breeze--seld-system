@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\PayController;
+use App\Http\Controllers\SalesController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\ProductoController;
-use App\Http\Controllers\SalesCon
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,10 +23,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
     //Product
-    Route::resource('products', ProductoController::class);
+    Route::resource('products', ProductController::class);
 
     //Sales
     Route::resource('sales', SalesController::class);
+
+    // Pay
+    Route::resource('pay', PayController::class);
 });
 
 require __DIR__.'/auth.php';
