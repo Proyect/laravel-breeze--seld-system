@@ -22,7 +22,7 @@
                     </x-nav-link>    
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{route('user.index')}}" >
+                    <x-nav-link href="{{route('users.index')}}" >
                         Users
                     </x-nav-link>    
                 </div>
@@ -32,7 +32,7 @@
                     </x-nav-link>    
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{route('pay.index')}}" >
+                    <x-nav-link href="{{route('pays.index')}}" >
                         Pay
                     </x-nav-link>    
                 </div>
