@@ -4,7 +4,8 @@ use App\Http\Controllers\PayController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
-
+use App\Http\Controllers\UserController;
+use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
 
 
@@ -30,6 +31,9 @@ Route::middleware('auth')->group(function () {
 
     // Pay
     Route::resource('pay', PayController::class);
+
+    //Users
+    Route::resource('user', UserController::class);
 });
 
 require __DIR__.'/auth.php';
