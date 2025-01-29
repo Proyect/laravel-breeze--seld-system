@@ -6,17 +6,14 @@ use App\Models\Sales;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreSalesRequest;
 use App\Http\Requests\UpdateSalesRequest;
-use App\Models\Sale;
+
 
 class SalesController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     */
+{    
     public function index()
     {
-        $sales = Sale::all();
-        return view('sales.index', $sales)->render();
+        $sales = Sales::all();        
+        return view('sales.index', compact('sales'));
     }
 
     /**
@@ -66,7 +63,7 @@ class SalesController extends Controller
      */
     public function update(UpdateSalesRequest $request)
     {
-        $sales = Sale::get($request);
+        $sales = Sales::get($request);
         if ($sales->save()) {
             
         }

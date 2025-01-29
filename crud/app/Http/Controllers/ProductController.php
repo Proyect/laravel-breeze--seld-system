@@ -39,7 +39,7 @@ class ProductController extends Controller
    
     public function destroy(Request $request)
     {
-        $product = Product::find($request->id); 
+        $product = Product::find($request ); 
         if ($product->save()) {
             $result = ["result"=>true, "mje"=>"Se actualizaron los datos correctamente"];
         }

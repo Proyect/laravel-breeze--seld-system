@@ -30,10 +30,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('sales', SalesController::class);
 
     // Pay
-    Route::resource('pay', PayController::class);
+    Route::resource('pays', PayController::class);
 
     //Users
-    Route::resource('user', UserController::class);
+    Route::resource('users', UserController::class);
 });
 
 require __DIR__.'/auth.php';
