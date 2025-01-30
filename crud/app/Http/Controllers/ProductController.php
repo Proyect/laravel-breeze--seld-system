@@ -31,10 +31,9 @@ class ProductController extends Controller
             $result = ["result"=>true, "mje"=>"Se actualizaron los datos correctamente"];
         }
         else{
-            $result = ["result"=>true, "mje"=>"Se actualizaron los datos correctamente"];
-        }
-        $product = Product::all();
-        return response()->json([ $product , $result]);
+            $result = ["result"=>false, "mje"=>"Los datos no se actualizaron correctamente"];
+        }        
+        return response()->json( $result);
     } 
    
     public function destroy(Request $request)

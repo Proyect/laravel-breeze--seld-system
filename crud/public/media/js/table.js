@@ -1,15 +1,17 @@
-
-  function Load(url="json.php"){
+//user 
+  function Load(url="users/create"){
     console.log("Load DataTable");
+    $('tbody').val("");
     $.getJSON(url, function(data) {
       $.each(data, function(index, item) {
+        console.log(item);
         const row = '<tr>' +
-                      '<td>' + item.first_name+ '</td>' +
-                      '<td>' + item.last_name + '</td>' +
-                      '<td>' + item.Phone + '</td>' +
-                      '<td>' + item.Email+ '</td>' +
+                      '<td>' + item.name+ '</td>' +
+                      '<td>' + item.lastName + '</td>' +
+                      '<td>' + item.phone + '</td>' +
+                      '<td>' + item.email+ '</td>' +
                       '<td>  <i  class="bi bi-pencil-square text-primary" Title="Edit" name="edt" data-id= ' + item.id + 
-                              ' data-first-name ="'+item.first_name+'"  data-last-name ="'+item.last_name+'" data-phone ="'+item.Phone+'" data-email ="'+item.Email+'"  onclick="FormEdit(this)"></i> - <i class="bi bi-x-square text-danger" title="Delete" name="del" data-id ="'+item.id+'" onclick="FormDelete()"></i> </td>' +
+                              ' data-first-name ="'+item.name+'"  data-last-name ="'+item.lastName+'" data-phone ="'+item.phone+'" data-email ="'+item.email+'"  onclick="FormEdit(this)"></i> - <i class="bi bi-x-square text-danger" title="Delete" name="del" data-id ="'+item.id+'" onclick="FormDelete()"></i> </td>' +
                       '</tr>';
           //console.log(row);
           $('tbody').append(row);         
@@ -19,10 +21,9 @@
       }); console.log("Done");
   };
 
-    $(document).ready(function(){         
-        const url = 'json.php';   
+    $(document).ready(function(){        
         $("#modal_data").modal('hide');
-        Load(url);
+        Load();
       });
 
   function FormEdit(){
@@ -32,7 +33,7 @@
       let item = $(this).data();
       console.log(item);
       $("#modal_data #id").val(item.id);      
-      $("#modal_data #name").val(item.firstName); 
+      $("#modal_data #name").val(item.name); 
       $("#modal_data #email").val(item.email);       
       $("#modal_data #lastName").val(item.lastName);
       $("#modal_data #tel").val(item.phone);    
@@ -47,7 +48,7 @@
     var form = $(this).serialize();
     $.ajax({
       type: "POST",
-      url: "sendData.php",
+      url: "users/"+form.id,
       data: form,
       dataType: "dataType",
       beforeSend: function(){
@@ -89,7 +90,7 @@
     console.log("delete form");
     $.ajax({
       type: "POST",
-      url: "sendData.php",
+      url: "users/"+form.id,
       data: form,
       dataType: "dataType",
       beforeSend: function(){

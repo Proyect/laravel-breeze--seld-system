@@ -9,24 +9,24 @@
       </button>
     </div> 
   
-    <h2>Registered Product</h2>
+    <h2>Registered User</h2>
     <table id="data" class="table table-striped w-100">
       <thead>
         <tr>
             <th>Name</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Status</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone</th>
             <th>OP</th>
         </tr>
       </thead>
       <tfoot>
         <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th>OP</th>
+          <th>Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>OP</th>
       </tr>
         </tfoot>
        <tbody>      

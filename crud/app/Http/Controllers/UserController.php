@@ -12,17 +12,14 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $user = User::all(); 
-        return view('users.index', compact('user'))->render();
+    {        
+        return view('users.index')->render();
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
+    
     public function create()
     {
-        //
+        $user = User::all(); //dd($user);
+        return response()->json($user);
     }
 
     /**
@@ -48,13 +45,16 @@ class UserController extends Controller
     {
         //
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
+    
     public function update(Request $request, string $id)
     {
-        //
+        $user = User::find($request->id);
+        if ($user->save()) {
+            $result = ["result"=>true,"mje"=>"Datos actualizados correctamente", "u"];
+        } else {
+            $result = ["result"=>false, "mje"=>"Los datos no se actualizaron correctamente"];
+        }
+        return response()->json($result);
     }
 
     /**
