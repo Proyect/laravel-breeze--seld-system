@@ -10,4 +10,5 @@ Laravel 11
 Breeze 
 
 Mysql
+JavaScript
 
