@@ -45,12 +45,12 @@
         <div class="modal-body">
         
         <h2>Registration Form</h2>
-          <form id="registration-form" class="form" method= "POST" action="sendData.php">
+          <form id="registration-form" class="form" method= "POST" action="">
             @csrf 
             <div class="row">
             <div class="col">
                 <label for="name">ID:</label>
-                <input type="text" id="id" name="id" class="form-control w50" required>
+                <input type="text" id="id" name="id" class="form-control w50" readonly>
             </div>
             </div>
             <div class="row">  
@@ -94,7 +94,7 @@
                 </button> 
               </div>
             </div>      
-          </form>
+          </for  m>
             
         </div>    
       </div>
