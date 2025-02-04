@@ -14,19 +14,19 @@
       <thead>
         <tr>
             <th>Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
+            <th>Last Name</th>            
             <th>Phone</th>
+            <th>Email</th>
             <th>OP</th>
         </tr>
       </thead>
       <tfoot>
         <tr>
           <th>Name</th>
-          <th>Last Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>OP</th>
+            <th>Last Name</th>            
+            <th>Phone</th>
+            <th>Email</th>
+            <th>OP</th>
       </tr>
         </tfoot>
        <tbody>      
@@ -45,13 +45,15 @@
         <div class="modal-body">
         
         <h2>Registration Form</h2>
-          <form id="registration-form" class="form" method= "POST" action="sendData.php">
+          <form id="registration-form" class="form" method= "POST" action="">
             @csrf 
             <div class="row">
             <div class="col">
                 <label for="name">ID:</label>
-                <input type="text" id="id" name="id" class="form-control w50" required>
-            </div>  
+                <input type="text" id="id" name="id" class="form-control w50" readonly>
+            </div>
+            </div>
+            <div class="row">  
             <div class="col">
               <label for="name">Name:</label>
               <input type="text" id="name" name="name" class="form-control w50" required>
@@ -67,10 +69,19 @@
                 <input type="email" id="email" name="email" class="form-control" required>
               </div>
               <div class="col">
-                <label for="tel">Tel:</label>
-                <input type="tel" id="tel" name="tel" class="form-control" required>        
+                <label for="tel">Verified Email:</label>
+                <input type="text" id="email_verifield_at" name="email_verifield_at" class="form-control" required>        
               </div>
-            
+            </div>
+            <div class="row">
+              <div class="col">
+                <label for="tel">Tel:</label>
+                <input type="tel" id="phone" name="phone" class="form-control" required>        
+              </div>
+              <div class="col">
+                <label for="tel">Address:</label>
+                <input type="text" id="address" name="address" class="form-control" required>        
+              </div>
             </div>
             <hr/>
             <div class="row">
@@ -83,7 +94,7 @@
                 </button> 
               </div>
             </div>      
-          </form>
+          </for  m>
             
         </div>    
       </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Symfony\Component\Console\Input\Input;
 
 class UserController extends Controller
 {
@@ -46,11 +47,13 @@ class UserController extends Controller
         //
     }
     
-    public function update(Request $request, string $id)
+    public function update(Request $request,$id)
     {
-        $user = User::find($request->id);
+        $user = User::find($id);
+        $user->update($request->all());
+        dd($user);
         if ($user->save()) {
-            $result = ["result"=>true,"mje"=>"Datos actualizados correctamente", "u"];
+            $result = ["result"=>true,"mje"=>"Datos actualizados correctamente"];
         } else {
             $result = ["result"=>false, "mje"=>"Los datos no se actualizaron correctamente"];
         }
