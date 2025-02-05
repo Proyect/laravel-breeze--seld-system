@@ -22,13 +22,16 @@ class UserController extends Controller
         $user = User::all(); //dd($user);
         return response()->json($user);
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    
+    public function store(Request $request)// not finished
     {
-        //
+        $user = User::created($request->except("_method",'_token',"id"));
+        if ($user) {
+            $result = ["result"=>true,"mje"=>"Datos actualizados correctamente"];
+        } else {
+            $result = ["result"=>false, "mje"=>"Los datos no se actualizaron correctamente"];
+        }
+        return response()->json($result);
     }
 
     /**
@@ -50,8 +53,8 @@ class UserController extends Controller
     public function update(Request $request,$id)
     {
         $user = User::find($id);
-        $user->update($request->all());
-        dd($user);
+        $user->fill($request->except("_method",'_token'));
+        //dd($user);
         if ($user->save()) {
             $result = ["result"=>true,"mje"=>"Datos actualizados correctamente"];
         } else {

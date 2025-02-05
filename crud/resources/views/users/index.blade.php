@@ -4,7 +4,7 @@
 <div  class="contaner">
     <div class="text-rigth"> 
       <button type="button" class="btn btn-primary btn-outline-light fw-bold"  data-bs-toggle="modal" 
-        data-bs-target="#modal_data">
+        data-bs-target="#modal_data" id="btnRegister" onclick="newData()">
         <i class="bi bi-plus-circle"></i> Registrer
       </button>
     </div> 
@@ -52,6 +52,10 @@
                 <label for="name">ID:</label>
                 <input type="text" id="id" name="id" class="form-control w50" readonly>
             </div>
+            <div class="col">
+              <label for="cuil">Cuil:</label>
+              <input type="number" id="cuil" name="cuil" class="form-control w50">
+          </div>
             </div>
             <div class="row">  
             <div class="col">
@@ -70,7 +74,7 @@
               </div>
               <div class="col">
                 <label for="tel">Verified Email:</label>
-                <input type="text" id="email_verifield_at" name="email_verifield_at" class="form-control" required>        
+                <input type="time" id="email_verifield_at" name="email_verifield_at" class="form-control" required>        
               </div>
             </div>
             <div class="row">
