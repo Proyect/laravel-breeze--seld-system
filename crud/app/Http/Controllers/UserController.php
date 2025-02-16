@@ -2,35 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+u  /**
+     * Store a newly created resource in storage.
+     */se App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Symfony\Component\Console\Input\Input;
 
 class UserController extends Controller
-{    
+{
     public function index()
-    {        
+    {
         return view('users.index')->render();
     }
-    
+
     public function create()
     {
         $user = User::all(); //dd($user);
         return response()->json($user);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(Request $request)// not finished
     {
-        $user = User::save($request);
+        $user = User::created($request->except("_method",'_token',"id"));
         if ($user) {
-            # code...
+            $result = ["result"=>true,"mje"=>"Datos actualizados correctamente"];
         } else {
-            # code...
+            $result = ["result"=>false, "mje"=>"Los datos no se actualizaron correctamente"];
         }
-        
+        return response()->json($result);
     }
 
     /**
@@ -48,11 +48,13 @@ class UserController extends Controller
     {
         //
     }
-    
-    public function update(Request $request, string $id)
+
+    public function update(Request $request,$id)
     {
-        $user = User::find($request->id);
-        if ($user->save($request)) {
+        $user = User::find($id);
+        $user->fill($request->except("_method",'_token'));
+        //dd($user);
+        if ($user->save()) {
             $result = ["result"=>true,"mje"=>"Datos actualizados correctamente"];
         } else {
             $result = ["result"=>false, "mje"=>"Los datos no se actualizaron correctamente"];
@@ -60,7 +62,7 @@ class UserController extends Controller
         return response()->json($result);
     }
 
-    
+
     public function destroy(string $id)
     {
         $user = User::find($request->id);
@@ -69,6 +71,6 @@ class UserController extends Controller
         } else {
             $result = ["result"=>false, "mje"=>"Datos no eliminados correctamente"];
         }
-        
+
     }
 }

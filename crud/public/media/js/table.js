@@ -1,7 +1,7 @@
 //user 
   function Load(url="users/create"){
     console.log("Load DataTable");
-    $('tbody').val("");
+    $('tbody').text(""); 
     $.getJSON(url, function(data) {
       $.each(data, function(index, item) {
         console.log(item);
@@ -12,11 +12,10 @@
                       '<td>' + item.email+ '</td>' +
                       '<td>  <i  class="bi bi-pencil-square text-primary" Title="Edit" name="edt" data-id= ' + item.id + 
                               ' data-name ="'+item.name+'"  data-lastName ="'+item.lastName+'" data-phone ="'+item.phone+
-                              '" data-email ="'+item.email+'data-email_verified_at'+item.email_verified_at+
-                              'data-address ='+item.address+
+                              '" data-email ="'+item.email+'" data-email_verified_at ="'+item.email_verified_at+
+                              '" data-address ="'+item.address+
                               '"  onclick="FormEdit(this)"></i> - <i class="bi bi-x-square text-danger" title="Delete" name="del" data-id ="'+item.id+'" onclick="FormDelete()"></i> </td>' +
-                      '</tr>';
-          //console.log(row);
+                      '</tr>';          
           $('tbody').append(row);         
         });
         $('#data').DataTable();
@@ -28,32 +27,52 @@
         Load();
       });
 
-  function FormEdit(params){
+  function FormEdit(){
     console.log("Show Edit Form");          
     $('[name="edt"]').on('click', function(){
-      let item = $(this).data();console.log("start to begin");
+      let item = $(this).data();
       
       console.log(item);       
-      $("#modal_data #id").val(item.id);      
+      $("#modal_data #id").val(item.id); 
+      $("#modal_data #id").prop('readonly', true);     
       $("#modal_data #name").val(item.name);  
       $("#modal_data #lastName").val(item.lastName);
       $("#modal_data #email").val(item.email);       
-      $("#modal_data #email").val(item.email);
+      $("#modal_data #email_verifield_at").val(item.email_verifield_at);
       $("#modal_data #tel").val(item.phone);
       $("#modal_data #email").val(item.email);    
     }); 
      
      $("#modal_data").modal('show');   
   };
-  
+
+  function newData(){
+    console.log("New data");
+    $("#btnRegister").on('click',function() {
+        
+      $("#modal_data #id").val("");      
+      $("#modal_data #name").val("");  
+      $("#modal_data #lastName").val("");
+      $("#modal_data #email").val("");       
+      $("#modal_data #email_verifield_at").val("");
+      $("#modal_data #tel").val("");
+      $("#modal_data #email").val("");  
+    })
+  }
+
   //send datas
   $("#registration-form").submit(function (event) {
     event.preventDefault();
     var form = $(this).serialize();
-    console.log(form.id);    
+    let id = $("#modal_data #id").val();
+    if (id =="") {
+      metod = "POST";
+    } else {
+      metod = "PUT";
+    }   
     $.ajax({
-      type: "PUT",
-      url: "users/"+form.id,
+      type: metod,
+      url: "users/"+id,
       data: form,
       dataType: "dataType",
       beforeSend: function(){
@@ -73,11 +92,11 @@
         },5000);   
       },
       error:function () {
-        console.error();
-        Load();
+        console.error();       
 
         $("#toast [class='modal-body']").text("Error en la actualizacion de datos");
-        $("#toast").modal("show");        
+        $("#toast").modal("show");    
+        Load();    
 
         setTimeout(function () {
           $('#toast').modal('hide');     
