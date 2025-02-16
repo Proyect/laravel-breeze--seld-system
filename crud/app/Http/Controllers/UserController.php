@@ -7,10 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     */
+{    
     public function index()
     {        
         return view('users.index')->render();
@@ -27,7 +24,13 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = User::save($request);
+        if ($user) {
+            # code...
+        } else {
+            # code...
+        }
+        
     }
 
     /**
@@ -49,19 +52,23 @@ class UserController extends Controller
     public function update(Request $request, string $id)
     {
         $user = User::find($request->id);
-        if ($user->save()) {
-            $result = ["result"=>true,"mje"=>"Datos actualizados correctamente", "u"];
+        if ($user->save($request)) {
+            $result = ["result"=>true,"mje"=>"Datos actualizados correctamente"];
         } else {
             $result = ["result"=>false, "mje"=>"Los datos no se actualizaron correctamente"];
         }
         return response()->json($result);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function destroy(string $id)
     {
-        //
+        $user = User::find($request->id);
+        if ($user::delete()) {
+            $result = ["result"=>true,"mje"=>"Datos Eliminados Correctamente"];
+        } else {
+            $result = ["result"=>false, "mje"=>"Datos no eliminados correctamente"];
+        }
+        
     }
 }
