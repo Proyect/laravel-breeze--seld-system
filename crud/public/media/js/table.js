@@ -46,14 +46,32 @@
      $("#modal_data").modal('show');   
   };
 
+  function newData(){
+    console.log("New data");
+    $("#btnRegister").on('click',function() {
+        
+      $("#modal_data #id").val("");      
+      $("#modal_data #name").val("");  
+      $("#modal_data #lastName").val("");
+      $("#modal_data #email").val("");       
+      $("#modal_data #email_verifield_at").val("");
+      $("#modal_data #tel").val("");
+      $("#modal_data #email").val("");  
+    })
+  }
 
   //send datas
   $("#registration-form").submit(function (event) {
     event.preventDefault();
     var form = $(this).serialize();
-    let id = $("#modal_data #id").val()   
+    let id = $("#modal_data #id").val();
+    if (id =="") {
+      metod = "POST";
+    } else {
+      metod = "PUT";
+    }   
     $.ajax({
-      type: "PUT",
+      type: metod,
       url: "users/"+id,
       data: form,
       dataType: "dataType",
@@ -74,11 +92,11 @@
         },5000);   
       },
       error:function () {
-        console.error();
-        Load();
+        console.error();       
 
         $("#toast [class='modal-body']").text("Error en la actualizacion de datos");
-        $("#toast").modal("show");        
+        $("#toast").modal("show");    
+        Load();    
 
         setTimeout(function () {
           $('#toast').modal('hide');     
