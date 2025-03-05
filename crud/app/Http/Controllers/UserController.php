@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-u  /**
-     * Store a newly created resource in storage.
-     */se App\Http\Controllers\Controller;
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Symfony\Component\Console\Input\Input;
+
 
 class UserController extends Controller
 {
@@ -33,17 +31,13 @@ class UserController extends Controller
         return response()->json($result);
     }
 
-    /**
-     * Display the specified resource.
-     */
+   
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+   
     public function edit(string $id)
     {
         //
@@ -63,14 +57,14 @@ class UserController extends Controller
     }
 
 
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $user = User::find($request->id);
-        if ($user::delete()) {
+        $user = User::find($id)->delete(); 
+        if ($user) {
             $result = ["result"=>true,"mje"=>"Datos Eliminados Correctamente"];
         } else {
             $result = ["result"=>false, "mje"=>"Datos no eliminados correctamente"];
         }
-
+        return response()->json($result);
     }
 }
