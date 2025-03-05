@@ -98,7 +98,7 @@
                 </button> 
               </div>
             </div>      
-          </for  m>
+          </form>
             
         </div>    
       </div>
@@ -118,10 +118,11 @@
         Are you sure to delete the datas?
         </div>
         <div class="modal-footer">
-          <form action="sendData.php" id="delete-form" method= "POST" action="sendData.php">
+          <form  id="deleteForm" method= "DELETE" >
             @csrf
-            <input type="hidden" name="id" id="id" value="0">
-            <button type="button" class="btn btn-danger btn-outline-light" type="submit">Delete</button>
+            @method('DELETE')
+            <input type="text" name="id" id="id" value="0">
+            <button class="btn btn-danger btn-outline-light" type="submit">Delete</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>  
            </form>      
         </div>

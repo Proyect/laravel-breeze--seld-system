@@ -107,20 +107,21 @@
     });  
   });  
   
-  $("#delete-form").submit(function (event) {
+  $("#deleteForm").submit(function (event) {
+    console.log("Start to delete proccess");
     
     event.preventDefault();
-    var form = $(this).serialize(); console.log(form);
+    let form = $(this).serialize(); 
+    let id = $("#deleteForm #id").val();    
     
     console.log("delete form");
     $.ajax({
-      type: "POST",
-      url: "users/"+form.id,
+      type: "DELETE",
+      url: "users/"+id,
       data: form,
       dataType: "dataType",
       beforeSend: function(){
-        console.log("Enviando Informacion");
-        
+        console.log("Enviando Solicitud");        
       },
       success: function (response) {
         console.log(response);
@@ -147,20 +148,24 @@
           $('.modal-backdrop').remove();   
         },5000);         
       }
-    }); 
+    });
+    $("#modalDelete").modal("hide"); 
   });
    
       
   function  FormDelete(params) {    
         //delete
         $("[name='del']").on("click",function(){
-          console.log("Delete");
+          console.log("Open Delete Form");
           let item = $(this).data();
           console.log(item);
-          $("#modalDelete #delete-form #id").val(item.id); 
+          $("#modalDelete #deleteForm #id").val(item.id); 
+          console.log("item: "+item.id);          
           $("#modalDelete").modal("show");
+          $("#modal_data").modal("hide");
         });
-      };
+      }; 
+
       $(document).ready(function () {
         FormDelete();
       });   
