@@ -74,14 +74,12 @@
             </div>
             <div class="row">
               <div class="col">
-                <label for="price">Status:</label>
-                <input type="number" step="0.01" id="status" name="price" class="form-control" required>
+                <label>Status</label>
+              <select class="form-select" id="status">
+                <option selected>active</option>
+                <option >inactive</option>
+                </select>
               </div>
-              <div class="col">
-                <label for="stock">Stock:</label>
-                <input type="number" id="stock" name="stock" class="form-control" required>
-              </div>
-
             </div>
             <hr/>
             <div class="row">
