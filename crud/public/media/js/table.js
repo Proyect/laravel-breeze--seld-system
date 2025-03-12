@@ -72,7 +72,7 @@
     }   
     $.ajax({
       type: metod,
-      url: "users/"+id,
+      url: "products/"+id,
       data: form,
       dataType: "dataType",
       beforeSend: function(){

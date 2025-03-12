@@ -50,7 +50,7 @@
             <div class="row">
             <div class="col">
                 <label for="name">ID:</label>
-                <input type="text" id="id" name="id" class="form-control w50" required>
+                <input type="text" id="id" name="id" class="form-control w50" readonly>
             </div>
             <div class="col">
               <label for="name">Name:</label>

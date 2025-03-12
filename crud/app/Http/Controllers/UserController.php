@@ -21,9 +21,8 @@ class UserController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $user = User::created($request->except("_method",'_token',"id")); 
-        dd();
+    { //use the register controller
+        $user = User::created($request->except("_method",'_token',"id"));        
         if ($user) {
             $result = ["result"=>true,"mje"=>"Datos actualizados correctamente"];
         } else {

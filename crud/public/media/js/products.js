@@ -10,9 +10,9 @@ function Load(url="products/create"){
                       '<td>' + item.price + '</td>' +
                       '<td>' + item.model+ '</td>' +
                       '<td>  <i  class="bi bi-pencil-square text-primary" Title="Edit" name="edt" data-id= ' + item.id +
-                              ' data-name ="'+item.name+'"  data-lastName ="'+item.lastName+'" data-phone ="'+item.phone+
+                              ' data-name ="'+item.name+'"  data-description ="'+item.description+'" data-price ="'+item.price+
                               '" data-email ="'+item.email+'" data-email_verified_at ="'+item.email_verified_at+
-                              '" data-address ="'+item.address+
+                              '" data-version ="'+item.version+
                               '"  onclick="FormEdit(this)"></i> - <i class="bi bi-x-square text-danger" title="Delete" name="del" data-id ="'+item.id+'" onclick="FormDelete()"></i> </td>' +
                       '</tr>';
           $('tbody').append(row);
@@ -33,7 +33,7 @@ function Load(url="products/create"){
     }   
     $.ajax({
       type: metod,
-      url: "users/"+id,
+      url: "´products/"+id,
       data: form,
       dataType: "dataType",
       beforeSend: function(){
@@ -66,3 +66,10 @@ function Load(url="products/create"){
       }
     });  
   });  
+
+  $(document).ready(function(){        
+    $("#modal_data").modal('hide');
+    $("#modalDelete").modal('hide');
+    $("#toast").modal('hide');
+    Load();
+  });
