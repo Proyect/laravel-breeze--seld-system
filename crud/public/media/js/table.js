@@ -72,12 +72,11 @@
     }   
     $.ajax({
       type: metod,
-      url: "users/"+id,
+      url: "products/"+id,
       data: form,
       dataType: "dataType",
       beforeSend: function(){
-        console.log("Enviando Informacion");
-        
+        console.log("Enviando Informacion");        
       },
       success: function (response) {
         console.log(response);

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('content')
 
+@include('auth.register')
 <div  class="contaner">
     <div class="text-rigth"> 
       <button type="button" class="btn btn-primary btn-outline-light fw-bold"  data-bs-toggle="modal" 

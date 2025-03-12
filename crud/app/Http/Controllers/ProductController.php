@@ -17,8 +17,15 @@ class ProductController extends Controller
         return view('products.index', compact('products'));
     }
         
-    public function store(StoreProductRequest $request)
+    public function create()
     {
+        $user = Product::all(); //dd($user);
+        return response()->json($user);
+    }
+
+    public function store(StoreProductRequest $request)
+    {   
+        $request->fill($request->except("_method",'_token'));
         Product::create($request->all());
         return redirect()->route('products.index');
     }

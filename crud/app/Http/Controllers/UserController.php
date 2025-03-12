@@ -20,28 +20,17 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function store(Request $request)// not finished
-    {
-        $user = User::created($request->except("_method",'_token',"id"));
+    public function store(Request $request)
+    { //use the register controller
+        $user = User::created($request->except("_method",'_token',"id"));        
         if ($user) {
             $result = ["result"=>true,"mje"=>"Datos actualizados correctamente"];
         } else {
             $result = ["result"=>false, "mje"=>"Los datos no se actualizaron correctamente"];
         }
         return response()->json($result);
-    }
-
+    }   
    
-    public function show(string $id)
-    {
-        //
-    }
-
-   
-    public function edit(string $id)
-    {
-        //
-    }
 
     public function update(Request $request,$id)
     {
