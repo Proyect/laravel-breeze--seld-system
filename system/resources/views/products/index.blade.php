@@ -45,7 +45,7 @@
         <div class="modal-body">
 
         <h2>Registration Form</h2>
-          <form id="registration-form" class="form" method= "POST" >
+          <form id="registration-form" class="form" method= "POST">
             @csrf
             <div class="row">
             <div class="col">
@@ -118,6 +118,7 @@
         <div class="modal-footer">
           <form action="sendData.php" id="delete-form" method= "POST" action="sendData.php">
             @csrf
+            @method('DELETE')
             <input type="hidden" name="id" id="id" value="0">
             <button type="button" class="btn btn-danger btn-outline-light" type="submit">Delete</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

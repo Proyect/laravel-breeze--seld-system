@@ -4,16 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreProductRequest;
-use App\Http\Requests\UpdateProductRequest;
-use GuzzleHttp\Psr7\Request;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     
     public function index()
     {
-        $products = Product::all();
+        $products = Product::all(); 
         return view('products.index', compact('products'));
     }
         
@@ -23,7 +21,7 @@ class ProductController extends Controller
         return response()->json($user);
     }
 
-    public function store(StoreProductRequest $request)
+    public function store(Request $request)
     {   
         $request->fill($request->except("_method",'_token'));
         $result = Product::create($request->all());
@@ -31,7 +29,7 @@ class ProductController extends Controller
     }
     
 
-    public function update(UpdateProductRequest $request)    
+    public function update(Request $request)    
     {
         $product = Product::find($request->id);        
         if ($product->save()) {

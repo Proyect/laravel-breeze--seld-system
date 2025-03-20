@@ -11,8 +11,8 @@ function Load(url="products/create"){
                       '<td>' + item.model+ '</td>' +
                       '<td>  <i  class="bi bi-pencil-square text-primary" Title="Edit" name="edt" data-id= ' + item.id +
                               ' data-name ="'+item.name+'"  data-description ="'+item.description+'" data-price ="'+item.price+
-                              '" data-email ="'+item.email+'" data-email_verified_at ="'+item.email_verified_at+
-                              '" data-version ="'+item.version+
+                              '" data-stock ="'+item.stock+'" data-status ="'+item.status+
+                              '" data-model ="'+item.model+
                               '"  onclick="FormEdit(this)"></i> - <i class="bi bi-x-square text-danger" title="Delete" name="del" data-id ="'+item.id+'" onclick="FormDelete()"></i> </td>' +
                       '</tr>';
           $('tbody').append(row);
@@ -26,14 +26,15 @@ function Load(url="products/create"){
     event.preventDefault();
     var form = $(this).serialize();
     let id = $("#modal_data #id").val();
-    if (id =="") {
+    if (id == "") {
       metod = "POST";
+      id="new"
     } else {
       metod = "PUT";
     }   
     $.ajax({
       type: metod,
-      url: "´products/"+id,
+      url: "products/"+id,
       data: form,
       dataType: "dataType",
       beforeSend: function(){
@@ -52,8 +53,7 @@ function Load(url="products/create"){
         },5000);   
       },
       error:function () {
-        console.error();       
-
+        console.error();
         $("#toast [class='modal-body']").text("Error en la actualizacion de datos");
         $("#toast").modal("show");    
         Load();    

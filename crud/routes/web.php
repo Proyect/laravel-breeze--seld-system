@@ -24,7 +24,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
     //Product
-    Route::resource('products', ProductController::class);
+    Route::post('/products/new', [ProductController::class,'store'])->name('products.new');
+    Route::get("/products",[ProductController::class,'create'])->name('products.list');
+    Route::put('/products/{id}',[ProductController::class,'update'])->name('products.update');
+    Route::delete("/products/{id}",[ProductController::class,'destroy'])->name('products.delete');
+  //  Route::resource('products', ProductController::class);
 
     //Sales
     Route::resource('sales', SalesController::class);
@@ -35,5 +39,4 @@ Route::middleware('auth')->group(function () {
     //Users
     Route::resource('users', UserController::class);
 });
-
 require __DIR__.'/auth.php';
