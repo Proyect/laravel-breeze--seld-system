@@ -11,12 +11,10 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//Route::get('/', function () {    return view('welcome'); });
 
 //site
-Route::get("/site", [SiteConstroller::class,"index"])->name('site.index');
+//Route::get("/site", [SiteConstroller::class,"index"])->name('site.index');
 
 //Dashboard
 Route::get('/dashboard', function () {
