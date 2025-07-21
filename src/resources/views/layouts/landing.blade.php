@@ -126,7 +126,7 @@
                   <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="dropdown09" data-bs-toggle="dropdown" aria-expanded="false">Contactos</a>
                     <ul class="dropdown-menu" aria-labelledby="dropdown09">
-                      <li><a class="dropdown-item" href="contacto.contacto">Contacto</a></li>
+                      <li><a class="dropdown-item" href="{{route('site.detail',['contacto.contacto'])}}">Contacto</a></li>
                       <li><a class="dropdown-item" href="contacto.instalacion-de-camaras-ip/">Camaras de seguridad</a></li>
                       <li><a class="dropdown-item" href="contacto.cotizacion/">Cotizacion</a></li>
                       <li><a class="dropdown-item" href="contacto.presupuesto-web/">Presupuesto Web</a></li>

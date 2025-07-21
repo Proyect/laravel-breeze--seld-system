@@ -63,7 +63,7 @@ class SalesController extends Controller
      */
     public function update(UpdateSalesRequest $request)
     {
-        $sales = Sales::get($request);
+        $sales = Sales::findOrFail($request->id);
         if ($sales->save()) {
             
         }
