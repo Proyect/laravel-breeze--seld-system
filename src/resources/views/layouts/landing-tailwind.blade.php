@@ -7,11 +7,24 @@
     <meta name="description" content="@yield('meta_description', 'Desarrollo de sistemas, Data Science, Seguridad Informática, SaaS')">
     <meta name="author" content="Ariel Marcelo Diaz">
     <link rel="icon" href="/media/img/icono.ico" type="image/x-icon">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+            },
+          }
+        }
+      }
+    </script>
     @stack('head')
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col font-sans">
     <!-- Header -->
     <header class="bg-white shadow">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
