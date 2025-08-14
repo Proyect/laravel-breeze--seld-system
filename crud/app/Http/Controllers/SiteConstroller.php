@@ -16,7 +16,7 @@ class SiteConstroller extends Controller
     }
 
     public function search(request $request) {  
-        return return view('site.search');        
+       return view('site.search');        
     }
 
 }

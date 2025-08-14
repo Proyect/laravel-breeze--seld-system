@@ -1,0 +1,143 @@
+/* Estilos específicos para la sección de servicios */
+
+/* Contenedor principal de servicios */
+.servicios-container {
+    background: linear-gradient(135deg, #eff6ff 0%, #ffffff 50%, #ecfeff 100%);
+    min-height: 100vh;
+    padding: 4rem 0;
+}
+
+/* Título del servicio */
+.servicio-titulo {
+    color: #1d4ed8;
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+/* Descripción del servicio */
+.servicio-descripcion {
+    color: #374151;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+/* Sección de tecnologías */
+.tecnologias-seccion {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 0.75rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.tecnologias-titulo {
+    color: #1f2937;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.tecnologias-descripcion {
+    color: #6b7280;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+/* Grid de tecnologías */
+.tecnologias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* Tarjeta individual de tecnología */
+.tecnologia-tarjeta {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.tecnologia-tarjeta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-color: #3b82f6;
+}
+
+.tecnologia-nombre {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tecnologias-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .tecnologia-tarjeta {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .tecnologia-nombre {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .servicios-container {
+        padding: 2rem 0;
+    }
+    
+    .servicio-titulo {
+        font-size: 1.5rem;
+    }
+    
+    .tecnologias-seccion {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tecnologias-seccion {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.tecnologia-tarjeta {
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.tecnologia-tarjeta:nth-child(1) { animation-delay: 0.1s; }
+.tecnologia-tarjeta:nth-child(2) { animation-delay: 0.2s; }
+.tecnologia-tarjeta:nth-child(3) { animation-delay: 0.3s; }
+.tecnologia-tarjeta:nth-child(4) { animation-delay: 0.4s; }
+.tecnologia-tarjeta:nth-child(5) { animation-delay: 0.5s; }
+.tecnologia-tarjeta:nth-child(6) { animation-delay: 0.6s; }
+.tecnologia-tarjeta:nth-child(7) { animation-delay: 0.7s; }
+.tecnologia-tarjeta:nth-child(8) { animation-delay: 0.8s; }
+.tecnologia-tarjeta:nth-child(9) { animation-delay: 0.9s; } 

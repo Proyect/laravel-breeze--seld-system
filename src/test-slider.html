@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Hero Slider</title>
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .hero-bg {
+            background-image: url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1500&q=80'), 
+                              linear-gradient(135deg, #0a2239 0%, #0066cc 100%);
+            background-size: cover, cover;
+            background-position: center, center;
+            background-repeat: no-repeat, no-repeat;
+            min-height: 500px;
+            position: relative;
+        }
+        
+        .hero-overlay {
+            background: linear-gradient(120deg, rgba(10,34,57,0.85) 60%, rgba(0,170,255,0.7) 100%);
+        }
+        
+        .swiper-slide {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .swiper-pagination-bullet {
+            background: white !important;
+            opacity: 0.5 !important;
+        }
+        
+        .swiper-pagination-bullet-active {
+            opacity: 1 !important;
+        }
+        
+        .hero-content h1 {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            color: white;
+        }
+        
+        .hero-content p {
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            color: #bfdbfe;
+        }
+        
+        .hero-btn {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 12px 32px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        
+        .hero-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .swiper-button-next,
+        .swiper-button-prev {
+            color: white !important;
+            background: rgba(0, 0, 0, 0.3);
+            width: 50px !important;
+            height: 50px !important;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <section class="relative hero-bg py-0 mb-12 shadow-lg">
+        <div class="hero-overlay absolute inset-0 w-full h-full z-0"></div>
+        <div class="relative z-10">
+            <div class="swiper hero-swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] px-4">
+                        <div class="hero-content text-center">
+                            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Soluciones Informáticas para tu Negocio</h1>
+                            <p class="text-lg md:text-2xl mb-8 font-light max-w-3xl">Desarrollo de Software · Data Science · Seguridad Informática · SaaS</p>
+                            <a href="#contacto" class="hero-btn inline-block bg-blue-600 hover:bg-blue-700">Solicita tu presupuesto</a>
+                        </div>
+                    </div>
+                    <div class="swiper-slide flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] px-4">
+                        <div class="hero-content text-center">
+                            <h1 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight">Transforma tu empresa con tecnología</h1>
+                            <p class="text-lg md:text-xl mb-8 font-light max-w-3xl">Automatización, análisis de datos y seguridad a tu alcance</p>
+                            <a href="#servicio-desarrollo" class="hero-btn inline-block bg-blue-700 hover:bg-blue-800">Ver servicios</a>
+                        </div>
+                    </div>
+                    <div class="swiper-slide flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] px-4">
+                        <div class="hero-content text-center">
+                            <h1 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight">Soluciones SaaS y en la Nube</h1>
+                            <p class="text-lg md:text-xl mb-8 font-light max-w-3xl">Escala tu negocio con plataformas modernas y seguras</p>
+                            <a href="#servicio-saas" class="hero-btn inline-block bg-cyan-600 hover:bg-cyan-700">Descubre más</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing slider...');
+            
+            if (typeof Swiper === 'undefined') {
+                console.error('Swiper library not loaded');
+                return;
+            }
+
+            console.log('Swiper found, creating slider...');
+
+            try {
+                const swiper = new Swiper('.hero-swiper', {
+                    loop: true,
+                    speed: 1000,
+                    effect: 'fade',
+                    fadeEffect: {
+                        crossFade: true
+                    },
+                    pagination: {
+                        el: '.swiper-pagination',
+                        clickable: true,
+                    },
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev',
+                    },
+                    autoplay: {
+                        delay: 4000,
+                        disableOnInteraction: false,
+                    },
+                    keyboard: {
+                        enabled: true,
+                    },
+                    on: {
+                        init: function() {
+                            console.log('Hero slider initialized successfully');
+                        },
+                        slideChange: function() {
+                            console.log('Slide changed to:', this.realIndex);
+                        }
+                    }
+                });
+
+                console.log('Hero slider is ready');
+                
+            } catch (error) {
+                console.error('Error initializing hero slider:', error);
+            }
+        });
+    </script>
+</body>
+</html> 
