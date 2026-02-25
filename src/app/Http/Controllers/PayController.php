@@ -5,9 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Payment;
+use App\Services\Payments\PaymentService;
 
 class PayController extends Controller
-{    
+{
+    private PaymentService $paymentService;
+
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
+
     public function index()
     {
         $pay = Payment::all();
@@ -27,7 +35,18 @@ class PayController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $payment = new Payment();
+        $payment->sale_id = $request->input('sale_id');
+        $payment->amount = $request->input('amount');
+        $payment->currency = $request->input('currency', 'ARS');
+        $payment->method = $request->input('method');
+        $payment->status = 'active';
+        $payment->payment_status = 'pending';
+        $payment->save();
+
+        $intent = $this->paymentService->createPayment($payment);
+
+        return response()->json($intent);
     }
 
     /**

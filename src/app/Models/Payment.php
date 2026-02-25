@@ -10,7 +10,17 @@ class Payment extends Model
     // public function user() {
     //     return $this->belongsTo(User::class);
     // }
-    protected $fillable = ['sale_id', 'method', 'status', 'amount'];
+    protected $fillable = [
+        'sale_id',
+        'method',
+        'status',
+        'payment_status',
+        'amount',
+        'currency',
+        'provider',
+        'provider_payment_id',
+        'metadata',
+    ];
 
     public function sale()
     {
