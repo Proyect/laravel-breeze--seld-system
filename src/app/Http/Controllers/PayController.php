@@ -35,11 +35,18 @@ class PayController extends Controller
      */
     public function store(Request $request)
     {
+        $data = $request->validate([
+            'sale_id' => ['nullable', 'integer'],
+            'amount' => ['required', 'numeric', 'min:0.5'],
+            'currency' => ['nullable', 'string', 'size:3'],
+            'method' => ['nullable', 'string', 'max:50'],
+        ]);
+
         $payment = new Payment();
-        $payment->sale_id = $request->input('sale_id');
-        $payment->amount = $request->input('amount');
-        $payment->currency = $request->input('currency', 'ARS');
-        $payment->method = $request->input('method');
+        $payment->sale_id = $data['sale_id'] ?? null;
+        $payment->amount = $data['amount'];
+        $payment->currency = $data['currency'] ?? 'ARS';
+        $payment->method = $data['method'] ?? null;
         $payment->status = 'active';
         $payment->payment_status = 'pending';
         $payment->save();
