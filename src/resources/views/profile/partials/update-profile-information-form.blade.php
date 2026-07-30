@@ -25,7 +25,7 @@
         </div>
         <div>
             <x-input-label value="Last Name"/>
-            < x-text-input id="lastName" name="lastName" type="text" class="mt-1 block w-full" :value="old('lastName', $user->lastName)" required autofocus autocomplete="lastName"/>
+            <x-text-input id="lastName" name="lastName" type="text" class="mt-1 block w-full" :value="old('lastName', $user->lastName)" required autocomplete="family-name"/>
         </div>     
         <div>
             <x-input-label for="email" :value="__('Email')" />
