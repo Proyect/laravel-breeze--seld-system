@@ -9,5 +9,9 @@ interface PaymentGateway
 {
     public function createPaymentIntent(Payment $payment): array;
 
+    /**
+     * @throws \App\Exceptions\InvalidWebhookSignatureException
+     * @throws \RuntimeException
+     */
     public function handleWebhook(Request $request): void;
 }

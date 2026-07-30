@@ -1,5 +1,11 @@
 {
-    "require": {
-        "stripe/stripe-php": "^19.3"
+    "name": "proyect/laravel-breeze-seld-system",
+    "description": "Workspace root. The Laravel application lives in /src.",
+    "type": "project",
+    "license": "MIT",
+    "require": {},
+    "scripts": {
+        "test": "composer --working-dir=src test",
+        "install-app": "composer --working-dir=src install"
     }
 }

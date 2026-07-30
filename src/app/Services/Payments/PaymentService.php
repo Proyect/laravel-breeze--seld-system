@@ -6,19 +6,19 @@ use App\Models\Payment;
 
 class PaymentService
 {
-    private MercadoPagoGateway $mercadoPagoGateway;
-    private StripeGateway $stripeGateway;
-
-    public function __construct(MercadoPagoGateway $mercadoPagoGateway, StripeGateway $stripeGateway)
-    {
-        $this->mercadoPagoGateway = $mercadoPagoGateway;
-        $this->stripeGateway = $stripeGateway;
+    public function __construct(
+        private MercadoPagoGateway $mercadoPagoGateway,
+        private StripeGateway $stripeGateway,
+    ) {
     }
 
     public function createPayment(Payment $payment): array
     {
-        if ($payment->currency === 'ARS') {
+        $currency = strtoupper($payment->currency ?: 'ARS');
+
+        if ($currency === 'ARS') {
             $payment->provider = 'mercadopago';
+            $payment->currency = 'ARS';
             $payment->save();
 
             return $this->mercadoPagoGateway->createPaymentIntent($payment);

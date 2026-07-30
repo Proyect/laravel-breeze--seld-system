@@ -16,25 +16,31 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+                @if (Route::has('products.index'))
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{route('products.index')}}" >
+                    <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
                         Productos
-                    </x-nav-link>    
+                    </x-nav-link>
                 </div>
+                @endif
+                @if (Route::has('users.index') && Auth::user()?->isAdmin())
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{route('users.index')}}" >
+                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                         Users
-                    </x-nav-link>    
+                    </x-nav-link>
                 </div>
+                @endif
+                @if (Route::has('sales.index'))
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{route('sales.index')}}" >
+                    <x-nav-link :href="route('sales.index')" :active="request()->routeIs('sales.*')">
                         Sales
-                    </x-nav-link>    
+                    </x-nav-link>
                 </div>
+                @endif
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{route('pays.index')}}" >
-                        Pay
-                    </x-nav-link>    
+                    <x-nav-link :href="route('payments.index')" :active="request()->routeIs('payments.*')">
+                        Pagos
+                    </x-nav-link>
                 </div>
             </div>
 
