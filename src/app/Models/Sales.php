@@ -3,24 +3,35 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sales extends Model
 {
-    // SUGERENCIA: El nombre estándar en Laravel es 'Sale' (singular), considera renombrar el modelo y la tabla.
-    // SUGERENCIA: Si tienes detalles de venta:
-    // public function details() {
-    //     return $this->hasMany(SalesDetail::class);
-    // }
     protected $fillable = ['user_id', 'status', 'total_amount'];
 
-    public function user()
+    protected function casts(): array
+    {
+        return [
+            'total_amount' => 'decimal:2',
+        ];
+    }
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function products()
+    public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class)->withPivot('quantity');
+        return $this->belongsToMany(Product::class, 'product_sales', 'sales_id', 'product_id')
+            ->withPivot('quantity')
+            ->withTimestamps();
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'sale_id');
     }
 }
-

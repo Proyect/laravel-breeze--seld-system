@@ -1,14 +1,33 @@
-How this work? 
+# Laravel Sell / Payment System
 
-This is a simple system of pay, you can integrate this project with other. Can register the users and selder. With the possibilities update the products.
+Aplicación Laravel 12 ubicada en `src/`, con pasarelas Stripe y Mercado Pago.
 
-How install? 
+## Requisitos
 
-You need for install next technologies in you server:
-PHP 8.2 
-Laravel 11 
-Breeze 
+- PHP 8.2+
+- Composer
+- Node.js 20+ / npm
+- MySQL o SQLite
 
-Mysql
-JavaScript
+## Instalación
 
+```bash
+cd src
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite   # o configurar MySQL en .env
+php artisan migrate
+npm install
+npm run build
+php artisan serve
+```
+
+## Producción
+
+Ver `src/PRODUCTION.md` para el checklist de despliegue, seguridad y pagos.
+
+## Estructura
+
+- `src/` — aplicación Laravel
+- `.github/workflows/laravel.yml` — CI (tests + build de assets)
