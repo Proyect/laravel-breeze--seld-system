@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactInquiryMail;
 use App\Models\Inquiry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,13 +29,7 @@ class ContactController extends Controller
         $recipient = config('mail.contact_to');
 
         try {
-            Mail::raw(
-                "Nueva consulta de: {$validated['name']} ({$validated['email']})\n\nMensaje: {$validated['message']}",
-                function ($message) use ($recipient) {
-                    $message->to($recipient)
-                        ->subject('Nueva consulta desde el sitio web');
-                }
-            );
+            Mail::to($recipient)->send(new ContactInquiryMail($inquiry));
         } catch (\Throwable $e) {
             Log::error('Contact mail failed', [
                 'inquiry_id' => $inquiry->id,

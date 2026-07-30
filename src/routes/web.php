@@ -3,10 +3,13 @@
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\MercadoPagoWebhookController;
 use App\Http\Controllers\PayController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\SiteConstroller;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +42,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
 
     Route::get('/payments', [PayController::class, 'index'])->name('payments.index');
     Route::post('/payments', [PayController::class, 'store'])

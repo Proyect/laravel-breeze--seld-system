@@ -41,11 +41,31 @@
    - Mercado Pago → `POST /webhooks/mercadopago`
 7. Health check básico: `GET /up`
 
-## Pendiente recomendado
+## Pendiente recomendado (priorizado)
 
-- Políticas/roles completos para admin CRUD
-- Tests de integración con Stripe/MP (sandbox)
-- Docker/Nginx + Supervisor
-- CAPTCHA en formularios públicos
-- Sacar Tailwind CDN del landing y pasar todo a Vite
-- Purgar `APP_KEY` del historial git si fue expuesto
+### Alta
+1. **Reparar CRUD admin** (`ProductController`, `UserController`, `SalesController`): hoy `StoreProductRequest`/`UpdateProductRequest` deniegan todo, `ProductController` importa Request de Guzzle, y `UserController@store` usa `User::created()` inválido.
+2. **Policies por rol**: restringir `/users` a admin; ventas/productos con ownership; no exponer listados globales a cualquier usuario autenticado.
+3. **Idempotencia fuerte de webhooks**: persistir `event_id` / `x-request-id` para evitar reprocesos y race conditions.
+4. **Reconciliación de montos en webhook**: validar amount/currency del proveedor contra el pago local antes de aprobar.
+
+### Media
+5. **Docker + Nginx + Supervisor** (php-fpm, queue worker, scheduler).
+6. **CAPTCHA / honeypot** en `/contacto` y relevamientos.
+7. **Quitar Tailwind/Swiper CDN** del landing y compilar todo con Vite + SRI.
+8. **Actualizar deps PHP** (`composer update` / audit: hay advisories low en symfony/yaml transitivo).
+9. **Observabilidad**: Sentry/Log drain + alertas de webhooks fallidos.
+
+### Baja / despliegue
+10. Purgar `APP_KEY` del historial git si fue expuesto.
+11. Health check profundo (`/up` + DB/queue/cache).
+12. Seeders de producción sin usuario `test@example.com` / password `password`.
+
+## Suite de tests
+
+```bash
+cd src
+php artisan test
+```
+
+Cobertura actual: health/páginas públicas, auth/registro/logout/profile, contacto, relevamiento, schema, autorización de pagos, webhooks Stripe/MP (firma + aprobación + idempotencia básica).
