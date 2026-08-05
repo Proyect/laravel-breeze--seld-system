@@ -2,57 +2,55 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use GuzzleHttp\Psr7\Request;
+use App\Models\Product;
+use Illuminate\Http\JsonResponse;
 
 class ProductController extends Controller
 {
-    
     public function index()
     {
         $products = Product::all();
+
         return view('products.index', compact('products'));
     }
-        
-    public function create()
+
+    public function create(): JsonResponse
     {
-        $user = Product::all(); //dd($user);
-        return response()->json($user);
+        return response()->json(Product::all());
     }
 
-    public function store(StoreProductRequest $request)
-    {   
-        $request->fill($request->except("_method",'_token'));
-        Product::create($request->all());
-        return redirect()->route('products.index');
-    }
-    
+    public function store(StoreProductRequest $request): JsonResponse
+    {
+        $product = Product::create($request->validated());
 
-    public function update(UpdateProductRequest $request)    
+        return response()->json([
+            'result' => true,
+            'mje' => 'Producto creado correctamente',
+            'data' => $product,
+        ]);
+    }
+
+    public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
-        $product = Product::find($request->id);        
-        if ($product->save()) {
-            $result = ["result"=>true, "mje"=>"Se actualizaron los datos correctamente"];
-        }
-        else{
-            $result = ["result"=>false, "mje"=>"Los datos no se actualizaron correctamente"];
-        }        
-        return response()->json( $result);
-    } 
-   
-    public function destroy(Request $request)
+        $product->update($request->validated());
+
+        return response()->json([
+            'result' => true,
+            'mje' => 'Producto actualizado correctamente',
+            'data' => $product,
+        ]);
+    }
+
+    public function destroy(Product $product): JsonResponse
     {
-        $product = Product::find($request ); 
-        if ($product->save()) {
-            $result = ["result"=>true, "mje"=>"Se actualizaron los datos correctamente"];
-        }
-        else{
-            $result = ["result"=>true, "mje"=>"Se actualizaron los datos correctamente"];
-        }
-        $product = Product::all();
-        return response()->json([ $product , $result]);
+        $product->delete();
+
+        return response()->json([
+            'result' => true,
+            'mje' => 'Producto eliminado correctamente',
+            'data' => Product::all(),
+        ]);
     }
 }

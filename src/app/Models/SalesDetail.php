@@ -3,24 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SalesDetail extends Model
 {
-    // SUGERENCIA: El nombre estándar sería 'SaleDetail' y la relación sería belongsTo Sale y Product.
-    // public function sale() {
-    //     return $this->belongsTo(Sale::class);
-    // }
-    // public function product() {
-    //     return $this->belongsTo(Product::class);
-    // }
+    protected $fillable = ['sales_id', 'product_id', 'quantity', 'unit_price', 'subtotal'];
 
-    public function sales()
+    protected $casts = [
+        'unit_price' => 'decimal:2',
+        'subtotal' => 'decimal:2',
+    ];
+
+    public function sale(): BelongsTo
     {
-        return $this->belongsToMany(Sale::class);
+        return $this->belongsTo(Sales::class, 'sales_id');
     }
 
-    public function products()
+    public function product(): BelongsTo
     {
-        return $this->belongsToMany(Product::class)->withPivot('quantity');
+        return $this->belongsTo(Product::class);
     }
 }

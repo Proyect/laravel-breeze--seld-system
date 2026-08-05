@@ -3,13 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
-    // SUGERENCIA: Si un pago pertenece a un usuario además de una venta:
-    // public function user() {
-    //     return $this->belongsTo(User::class);
-    // }
     protected $fillable = [
         'sale_id',
         'method',
@@ -22,8 +19,13 @@ class Payment extends Model
         'metadata',
     ];
 
-    public function sale()
+    protected $casts = [
+        'metadata' => 'array',
+        'amount' => 'decimal:2',
+    ];
+
+    public function sale(): BelongsTo
     {
-        return $this->belongsTo(Sale::class);
+        return $this->belongsTo(Sales::class, 'sale_id');
     }
 }

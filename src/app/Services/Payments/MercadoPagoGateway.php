@@ -34,6 +34,7 @@ class MercadoPagoGateway implements PaymentGateway
             ];
 
             $preference->auto_return = 'approved';
+            $preference->external_reference = (string) $payment->id;
             $preference->notification_url = Config::get('app.url') . '/webhooks/mercadopago';
             $preference->save();
 
@@ -63,6 +64,53 @@ class MercadoPagoGateway implements PaymentGateway
 
     public function handleWebhook(Request $request): void
     {
-        // Aquí se implementará la lógica para procesar webhooks de Mercado Pago
+        $accessToken = Config::get('services.mercadopago.access_token');
+
+        if (! $accessToken) {
+            return;
+        }
+
+        $topic = $request->input('type') ?? $request->input('topic');
+        $dataId = $request->input('data.id') ?? $request->input('id');
+
+        if (! in_array($topic, ['payment', 'payment.created', 'payment.updated'], true) || ! $dataId) {
+            return;
+        }
+
+        $response = \Illuminate\Support\Facades\Http::withToken($accessToken)
+            ->get("https://api.mercadopago.com/v1/payments/{$dataId}");
+
+        if (! $response->successful()) {
+            return;
+        }
+
+        $paymentData = $response->json();
+        $externalReference = $paymentData['external_reference'] ?? null;
+        $status = $paymentData['status'] ?? null;
+
+        if (! $externalReference) {
+            return;
+        }
+
+        $payment = Payment::find($externalReference);
+
+        if (! $payment) {
+            return;
+        }
+
+        $payment->provider_payment_id = (string) $dataId;
+        $payment->metadata = array_merge($payment->metadata ?? [], [
+            'mercadopago_payment_id' => $dataId,
+            'mercadopago_status' => $status,
+        ]);
+
+        $payment->payment_status = match ($status) {
+            'approved' => 'approved',
+            'rejected', 'cancelled' => 'rejected',
+            'refunded' => 'refunded',
+            default => 'pending',
+        };
+
+        $payment->save();
     }
 }
