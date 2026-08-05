@@ -1882,7 +1882,9 @@
                 <!-- Información de la Empresa -->
                 <div class="lg:col-span-2">
                     <div class="mb-6">
-                        <h3 class="text-2xl font-bold text-white mb-4">Infrasoft</h3>
+                        <a href="/" class="inline-block mb-4">
+                            <x-infrasoft-logo size="md" />
+                        </a>
                         <p class="text-gray-300 leading-relaxed mb-6">
                             Somos una empresa de desarrollo de software especializada en crear soluciones tecnológicas 
                             innovadoras que transforman negocios y potencian el crecimiento empresarial.
@@ -1947,6 +1949,9 @@
             </div>
         </div>
     </footer>
+@endsection
+
+@section('footer')
 @endsection
 
 @push('scripts')

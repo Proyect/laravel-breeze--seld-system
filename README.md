@@ -2,113 +2,123 @@
 
 Sistema de ventas y pagos para **Infrasoft** con sitio corporativo, módulo de productos, ventas, usuarios y pasarelas de pago (Stripe + Mercado Pago).
 
-## Requisitos
+---
 
-- Node.js 18+ y npm
-- SQLite (por defecto) o MySQL
-
-> **Windows:** Este proyecto incluye PHP 8.3 y Composer en `tools/`. No necesitás instalarlos globalmente.
-
-## Instalación
+## Inicio rápido
 
 ```powershell
+.\tools\setup.ps1          # Windows: descarga PHP + Composer
 cd src
-
-# Usar los wrappers locales (Windows)
 .\composer.bat install
 npm install
-
 copy .env.example .env
 .\php.bat artisan key:generate
-
-# SQLite (por defecto)
 New-Item -ItemType File -Path database\database.sqlite -Force
-
 .\php.bat artisan migrate --seed
 npm run build
-```
-
-## Desarrollo
-
-```powershell
-cd src
 .\composer.bat run dev
 ```
 
-Esto inicia el servidor Laravel, cola, logs y Vite en paralelo. La app queda en `http://localhost:8000`.
-
-## Usuarios de prueba
+Abrir **http://localhost:8000**
 
 | Email | Contraseña | Rol |
 |-------|-----------|-----|
 | admin@infrasoft.com.ar | password | admin |
 | user@example.com | password | user |
 
-## Variables de entorno
+---
 
-```env
-APP_URL=http://localhost:8000
+## Documentación
 
-# Stripe (pagos internacionales)
-STRIPE_SECRET_KEY=
-STRIPE_PUBLIC_KEY=
-STRIPE_WEBHOOK_SECRET=
+### Usuarios
 
-# Mercado Pago (pagos en ARS)
-MERCADOPAGO_ACCESS_TOKEN=
-MERCADOPAGO_PUBLIC_KEY=
-```
+| Documento | Descripción |
+|-----------|-------------|
+| [Manual de Usuario](MANUAL_USUARIO.md) | Guía completa para clientes y administradores |
+
+### Desarrolladores
+
+| Documento | Descripción |
+|-----------|-------------|
+| [Índice de documentación](docs/README.md) | Punto de entrada a toda la documentación |
+| [Instalación](docs/INSTALACION.md) | Setup detallado Windows/Linux |
+| [Arquitectura](docs/ARQUITECTURA.md) | Estructura y módulos del sistema |
+| [Desarrollo](docs/DESARROLLO.md) | Convenciones y flujo de trabajo |
+| [Configuración](docs/CONFIGURACION.md) | Variables de entorno |
+| [Base de datos](docs/BASE_DE_DATOS.md) | Esquema y migraciones |
+| [Rutas](docs/RUTAS.md) | Referencia de endpoints HTTP |
+| [Pagos](docs/PAGOS.md) | Stripe y Mercado Pago |
+| [Testing](docs/TESTING.md) | PHPUnit y Cypress |
+| [Despliegue](docs/DESPLIEGUE.md) | Producción y servidor |
+| [Marca](docs/MARCA.md) | Logo y colores corporativos |
+| [Contribución](CONTRIBUTING.md) | Cómo colaborar |
+
+---
+
+## Stack
+
+| Capa | Tecnología |
+|------|------------|
+| Backend | Laravel 12, PHP 8.2+ |
+| Frontend | Tailwind 4, Vite, Bootstrap 5 |
+| Base de datos | SQLite (dev) / MySQL (prod) |
+| Pagos | Stripe + Mercado Pago |
+| Tests | PHPUnit (41) + Cypress (21) |
+
+---
 
 ## Rutas principales
 
 | Ruta | Descripción |
 |------|-------------|
 | `/` | Sitio corporativo |
+| `/servicios` | Catálogo de servicios |
 | `/login` | Inicio de sesión |
-| `/register` | Registro |
 | `/dashboard` | Panel de control |
-| `/products` | CRUD productos (admin) |
-| `/users` | CRUD usuarios (admin) |
+| `/products` | Productos (admin) |
+| `/users` | Usuarios (admin) |
 | `/sales` | Ventas |
 | `/payments` | Pagos |
-| `/servicios` | Catálogo de servicios |
+
+Ver [referencia completa de rutas](docs/RUTAS.md).
+
+---
 
 ## Tests
 
-### PHPUnit (backend) — 41 tests
-
 ```powershell
 cd src
-.\composer.bat run test
-# o alternativamente:
-npm run test:php
+.\composer.bat run test      # PHPUnit — 41 tests
+npm run cypress:run        # Cypress — 21 tests (servidor activo)
+.\test.bat                 # Ambos (Windows)
 ```
 
-Cubre: autenticación, productos, usuarios, ventas, pagos, contacto, páginas públicas y webhooks.
+Ver [guía de testing](docs/TESTING.md).
 
-### Cypress (E2E) — 21 tests
+---
 
-Terminal 1 — servidor:
+## Estructura del repositorio
 
-```powershell
-cd src
-.\php.bat artisan serve --host=127.0.0.1 --port=8000
+```
+laravel-breeze--seld-system/
+├── docs/                # Documentación técnica
+├── tools/               # PHP/Composer portables (Windows)
+├── MANUAL_USUARIO.md    # Manual para usuarios finales
+├── README.md            # Este archivo
+└── src/                 # Aplicación Laravel
+    ├── app/             # Código PHP
+    ├── database/        # Migraciones y seeders
+    ├── public/          # Assets públicos (logo, media)
+    ├── resources/       # Views, CSS, JS
+    ├── routes/          # Rutas HTTP
+    ├── tests/           # PHPUnit
+    └── cypress/         # Tests E2E
 ```
 
-Terminal 2 — tests E2E:
+La aplicación Laravel vive en `src/`. El `composer.json` de la raíz no se usa.
 
-```powershell
-cd src
-npm run cypress:run
-```
+---
 
-### Ejecutar todo (Windows)
+## Licencia
 
-```powershell
-cd src
-.\test.bat
-```
-
-## Estructura
-
-La aplicación Laravel vive en `src/`. El `composer.json` de la raíz del repositorio no se usa; todas las dependencias están en `src/composer.json`.
+MIT
