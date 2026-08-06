@@ -6,6 +6,8 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -23,7 +25,7 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): JsonResponse
     {
-        $product = Product::create($request->validated());
+        $product = Product::create($this->prepareProductData($request));
 
         return response()->json([
             'result' => true,
@@ -34,17 +36,18 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
-        $product->update($request->validated());
+        $product->update($this->prepareProductData($request, $product));
 
         return response()->json([
             'result' => true,
             'mje' => 'Producto actualizado correctamente',
-            'data' => $product,
+            'data' => $product->fresh(),
         ]);
     }
 
     public function destroy(Product $product): JsonResponse
     {
+        $this->deleteProductImages($product);
         $product->delete();
 
         return response()->json([
@@ -52,5 +55,31 @@ class ProductController extends Controller
             'mje' => 'Producto eliminado correctamente',
             'data' => Product::all(),
         ]);
+    }
+
+    private function prepareProductData(Request $request, ?Product $product = null): array
+    {
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $images = $product?->images ?? [];
+            $images[] = Storage::url($path);
+            $data['images'] = $images;
+        }
+
+        unset($data['image']);
+
+        return $data;
+    }
+
+    private function deleteProductImages(Product $product): void
+    {
+        foreach ($product->images ?? [] as $url) {
+            $path = str_replace('/storage/', '', parse_url($url, PHP_URL_PATH) ?? '');
+            if ($path && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
     }
 }

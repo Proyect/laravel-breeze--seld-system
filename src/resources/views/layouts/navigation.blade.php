@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-infrasoft-logo size="sm" />
+                        <x-infrasoft-logo variant="nav" />
                     </a>
                 </div>
 
@@ -25,6 +25,11 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link href="{{ route('users.index') }}" :active="request()->routeIs('users.*')">
                         Usuarios
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link href="{{ route('inquiries.index') }}" :active="request()->routeIs('inquiries.*')">
+                        Consultas
                     </x-nav-link>
                 </div>
                 @endif

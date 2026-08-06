@@ -20,7 +20,7 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-infrasoft-navy">
             <div>
                 <a href="/">
-                    <x-infrasoft-logo size="lg" />
+                    <x-infrasoft-logo variant="header" class="!h-16 !max-w-[300px]" />
                 </a>
             </div>
 

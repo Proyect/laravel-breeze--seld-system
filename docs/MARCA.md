@@ -13,22 +13,33 @@ Identidad visual de Infrasoft en el sistema.
 ### Uso en Blade
 
 ```blade
-{{-- Tamaños: xs, sm, md, lg, xl --}}
-<x-infrasoft-logo size="md" />
+{{-- Header del sitio público (recomendado) --}}
+<x-infrasoft-logo variant="header" />
 
-{{-- Con clases adicionales --}}
-<x-infrasoft-logo size="sm" class="md:h-14" />
+{{-- Navbar del panel admin --}}
+<x-infrasoft-logo variant="nav" />
+
+{{-- Login, páginas de auth --}}
+<x-infrasoft-logo variant="header" class="!h-16 !max-w-[300px]" />
+
+{{-- Logo completo cuadrado --}}
+<x-infrasoft-logo variant="full" size="lg" />
 ```
 
-### Tamaños disponibles
+### Archivos de logo
 
-| Tamaño | Altura CSS | Uso recomendado |
-|--------|-----------|-----------------|
-| `xs` | 32px (h-8) | Favicon inline, espacios reducidos |
-| `sm` | 40px (h-10) | Navbar admin, footer compacto |
-| `md` | 48px (h-12) | Header público, footer principal |
-| `lg` | 64px (h-16) | Login, páginas de auth |
-| `xl` | 80px (h-20) | Hero, presentaciones |
+| Archivo | Uso |
+|---------|-----|
+| `logo-infrasoft.png` | Logo completo (cuadrado, favicon) |
+| `logo-infrasoft-header.png` | Versión recortada horizontal para header/nav |
+
+### Variantes del componente
+
+| Variante | Descripción |
+|----------|-------------|
+| `header` | Logo horizontal recortado para navbar y footer |
+| `nav` | Versión compacta para panel admin |
+| `full` | Logo completo con tamaños `xs`–`xl` |
 
 ### Favicon
 

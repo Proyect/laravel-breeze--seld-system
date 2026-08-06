@@ -28,7 +28,7 @@ class ContactController extends Controller
         Mail::raw(
             "Nueva consulta de: {$validated['name']} ({$validated['email']})\n\nMensaje: {$validated['message']}",
             function ($message) {
-                $message->to('contacto@infrasoft.com.ar')
+                $message->to(config('mail.from.address', 'contacto@infrasoft.com.ar'))
                         ->subject('Nueva consulta desde el sitio web');
             }
         );

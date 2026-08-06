@@ -20,6 +20,7 @@ class UpdateProductRequest extends FormRequest
             'stock' => ['required', 'integer', 'min:0'],
             'status' => ['required', 'in:active,inactive'],
             'images' => ['nullable', 'array'],
+            'image' => ['nullable', 'image', 'max:2048'],
         ];
     }
 }

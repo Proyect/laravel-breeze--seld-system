@@ -5,6 +5,7 @@ function Load(url = "/products/create") {
     $('tbody').empty();
     $.getJSON(url, function (data) {
         $.each(data, function (index, item) {
+            const images = item.images ? JSON.stringify(item.images) : '[]';
             const row = '<tr>' +
                 '<td>' + item.name + '</td>' +
                 '<td>' + item.description + '</td>' +
@@ -13,8 +14,8 @@ function Load(url = "/products/create") {
                 '<td><i class="bi bi-pencil-square text-primary" title="Edit" name="edt" data-id="' + item.id +
                 '" data-name="' + item.name + '" data-description="' + item.description +
                 '" data-price="' + item.price + '" data-stock="' + item.stock +
-                '" data-status="' + item.status +
-                '" onclick="FormEdit(this)"></i> - <i class="bi bi-x-square text-danger" title="Delete" name="del" data-id="' + item.id + '" onclick="FormDelete(this)"></i></td>' +
+                '" data-status="' + item.status + '" data-images=\'' + images + '\'' +
+                ' onclick="FormEdit(this)"></i> - <i class="bi bi-x-square text-danger" title="Delete" name="del" data-id="' + item.id + '" onclick="FormDelete(this)"></i></td>' +
                 '</tr>';
             $('tbody').append(row);
         });
@@ -30,7 +31,19 @@ function FormEdit(el) {
     $("#modal_data #price").val(item.price);
     $("#modal_data #stock").val(item.stock);
     $("#modal_data #status").val(item.status);
+    $("#image").val('');
+    showImagePreview(item.images);
     $("#modal_data").modal('show');
+}
+
+function showImagePreview(images) {
+    const preview = $('#image-preview');
+    preview.empty();
+    if (!images || !images.length) return;
+    const img = Array.isArray(images) ? images[0] : images;
+    if (img) {
+        preview.html('<img src="' + img + '" alt="Vista previa" class="img-thumbnail" style="max-height:120px">');
+    }
 }
 
 function FormDelete(el) {
@@ -41,21 +54,27 @@ function FormDelete(el) {
 
 $("#registration-form").submit(function (event) {
     event.preventDefault();
-    const form = $(this).serialize();
     const id = $("#modal_data #id").val();
-    const method = id ? "PUT" : "POST";
     const url = id ? "/products/" + id : "/products";
+    const formData = new FormData(this);
+
+    if (id) {
+        formData.append('_method', 'PUT');
+    }
 
     $.ajax({
-        type: method,
+        type: 'POST',
         url: url,
-        data: form,
+        data: formData,
+        processData: false,
+        contentType: false,
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
         success: function (response) {
             Load();
             $("#toast #body_toast").text(response.mje || "Datos guardados correctamente");
             $("#toast").modal("show");
             $("#modal_data").modal('hide');
+            $('#image-preview').empty();
         },
         error: function () {
             $("#toast #body_toast").text("Error al guardar los datos");
@@ -84,6 +103,12 @@ $("#delete-form").submit(function (event) {
         }
     });
 });
+
+function newData() {
+    $('#registration-form')[0].reset();
+    $('#id').val('');
+    $('#image-preview').empty();
+}
 
 $(document).ready(function () {
     Load();

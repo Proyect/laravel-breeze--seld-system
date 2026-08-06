@@ -5,6 +5,8 @@ namespace App\Services\Payments;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class MercadoPagoGateway implements PaymentGateway
 {
@@ -12,47 +14,9 @@ class MercadoPagoGateway implements PaymentGateway
     {
         $accessToken = Config::get('services.mercadopago.access_token');
         $publicKey = Config::get('services.mercadopago.public_key');
+        $appUrl = rtrim(Config::get('app.url'), '/');
 
-        // Si el SDK de Mercado Pago está instalado, usamos Checkout Pro para crear una preferencia
-        if ($accessToken && class_exists('MercadoPago\\SDK') && class_exists('MercadoPago\\Preference')) {
-            \MercadoPago\SDK::setAccessToken($accessToken);
-
-            $preference = new \MercadoPago\Preference();
-            $preference->items = [
-                [
-                    'title' => 'Pago #' . $payment->id,
-                    'quantity' => 1,
-                    'unit_price' => (float) $payment->amount,
-                    'currency_id' => $payment->currency ?: 'ARS',
-                ],
-            ];
-
-            $preference->back_urls = [
-                'success' => Config::get('app.url') . '/payments/success?payment_id=' . $payment->id,
-                'failure' => Config::get('app.url') . '/payments/cancel?payment_id=' . $payment->id,
-                'pending' => Config::get('app.url') . '/payments/success?payment_id=' . $payment->id,
-            ];
-
-            $preference->auto_return = 'approved';
-            $preference->external_reference = (string) $payment->id;
-            $preference->notification_url = Config::get('app.url') . '/webhooks/mercadopago';
-            $preference->save();
-
-            $payment->provider_payment_id = $preference->id;
-            $payment->save();
-
-            return [
-                'provider' => 'mercadopago',
-                'public_key' => $publicKey,
-                'payment_id' => $payment->id,
-                'amount' => $payment->amount,
-                'currency' => $payment->currency,
-                'redirect_url' => $preference->init_point,
-            ];
-        }
-
-        // Si no hay SDK instalado, devolvemos datos básicos para que el frontend actúe o para mostrar un error controlado
-        return [
+        $base = [
             'provider' => 'mercadopago',
             'public_key' => $publicKey,
             'payment_id' => $payment->id,
@@ -60,6 +24,60 @@ class MercadoPagoGateway implements PaymentGateway
             'currency' => $payment->currency,
             'redirect_url' => null,
         ];
+
+        if (! $accessToken) {
+            return $base;
+        }
+
+        $preference = $this->createPreferenceViaApi($payment, $accessToken, $appUrl);
+
+        if ($preference) {
+            $payment->provider_payment_id = $preference['id'];
+            $payment->save();
+
+            return array_merge($base, [
+                'redirect_url' => $preference['init_point'] ?? $preference['sandbox_init_point'] ?? null,
+            ]);
+        }
+
+        return $base;
+    }
+
+    private function createPreferenceViaApi(Payment $payment, string $accessToken, string $appUrl): ?array
+    {
+        $payload = [
+            'items' => [
+                [
+                    'title' => 'Pago #' . $payment->id,
+                    'quantity' => 1,
+                    'unit_price' => (float) $payment->amount,
+                    'currency_id' => $payment->currency ?: 'ARS',
+                ],
+            ],
+            'back_urls' => [
+                'success' => $appUrl . '/payments/success?payment_id=' . $payment->id,
+                'failure' => $appUrl . '/payments/cancel?payment_id=' . $payment->id,
+                'pending' => $appUrl . '/payments/success?payment_id=' . $payment->id,
+            ],
+            'auto_return' => 'approved',
+            'external_reference' => (string) $payment->id,
+            'notification_url' => $appUrl . '/webhooks/mercadopago',
+        ];
+
+        $response = Http::withToken($accessToken)
+            ->acceptJson()
+            ->post('https://api.mercadopago.com/checkout/preferences', $payload);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        Log::warning('Mercado Pago preference failed', [
+            'status' => $response->status(),
+            'body' => $response->json(),
+        ]);
+
+        return null;
     }
 
     public function handleWebhook(Request $request): void
@@ -77,7 +95,7 @@ class MercadoPagoGateway implements PaymentGateway
             return;
         }
 
-        $response = \Illuminate\Support\Facades\Http::withToken($accessToken)
+        $response = Http::withToken($accessToken)
             ->get("https://api.mercadopago.com/v1/payments/{$dataId}");
 
         if (! $response->successful()) {

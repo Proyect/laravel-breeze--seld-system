@@ -59,6 +59,12 @@
                             <option value="inactive">Inactivo</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Imagen del producto</label>
+                        <input type="file" id="image" name="image" class="form-control" accept="image/jpeg,image/png,image/webp,image/gif">
+                        <small class="text-muted">Opcional. Máximo 2 MB (JPG, PNG, WebP).</small>
+                        <div id="image-preview" class="mt-2"></div>
+                    </div>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
             </div>

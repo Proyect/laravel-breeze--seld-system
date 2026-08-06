@@ -28,6 +28,10 @@
                                 <h3 class="font-semibold">Usuarios</h3>
                                 <p class="text-sm text-gray-500">Gestionar usuarios</p>
                             </a>
+                            <a href="{{ route('inquiries.index') }}" class="block p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <h3 class="font-semibold">Consultas</h3>
+                                <p class="text-sm text-gray-500">Mensajes del sitio web</p>
+                            </a>
                         @endif
                     </div>
                 </div>

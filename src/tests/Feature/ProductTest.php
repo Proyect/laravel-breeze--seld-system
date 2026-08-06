@@ -97,4 +97,25 @@ class ProductTest extends TestCase
             ->assertOk()
             ->assertJsonFragment(['name' => 'JSON Product']);
     }
+
+    public function test_admin_can_create_product_with_image(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $this->actingAs($this->createAdmin())
+            ->post('/products', [
+                'name' => 'Producto con imagen',
+                'description' => 'Descripción',
+                'price' => 100,
+                'stock' => 5,
+                'status' => 'active',
+                'image' => \Illuminate\Http\UploadedFile::fake()->create('product.jpg', 100, 'image/jpeg'),
+            ])
+            ->assertOk()
+            ->assertJson(['result' => true]);
+
+        $product = Product::where('name', 'Producto con imagen')->first();
+        $this->assertNotNull($product);
+        $this->assertNotEmpty($product->images);
+    }
 }

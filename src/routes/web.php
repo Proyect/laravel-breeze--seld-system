@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\MercadoPagoWebhookController;
 use App\Http\Controllers\PayController;
 use App\Http\Controllers\ProductController;
@@ -27,6 +28,14 @@ Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.
 Route::get('/servicios/{slug}', [ServicioController::class, 'detalle'])->name('servicios.detalle');
 Route::post('/servicios/{slug}/relevamiento', [ServicioController::class, 'relevamiento'])->name('servicios.relevamiento');
 Route::get('/api/tecnologias/{categoria}', [ServicioController::class, 'tecnologiasPorCategoria'])->name('api.tecnologias.categoria');
+
+// Redirecciones de URLs legacy del sitio anterior
+Route::redirect('/page/servicios/desarrollo-de-software', '/servicios/desarrollo-software');
+Route::redirect('/page/servicios/desarrollo-web', '/servicios/desarrollo-software');
+Route::redirect('/page/institucional/institucional', '/#about');
+Route::redirect('/page/contacto/contacto', '/#contacto');
+Route::redirect('/page/productos/productos', '/servicios');
+Route::get('/page/{any}', fn () => redirect('/servicios'))->where('any', '.*');
 
 // Webhooks (sin CSRF)
 Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'handle'])->name('webhooks.mercadopago');
@@ -68,6 +77,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+        Route::get('/inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
+        Route::get('/inquiries/list/data', [InquiryController::class, 'list'])->name('inquiries.list');
+        Route::put('/inquiries/{inquiry}', [InquiryController::class, 'update'])->name('inquiries.update');
+        Route::delete('/inquiries/{inquiry}', [InquiryController::class, 'destroy'])->name('inquiries.destroy');
     });
 });
 
