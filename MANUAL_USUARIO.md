@@ -205,8 +205,11 @@ Al entrar verás una tabla con todos los productos registrados:
 | Precio | Precio en pesos (decimal, ej: 1500.00) |
 | Stock | Cantidad disponible |
 | Estado | `Activo` o `Inactivo` |
+| Imagen | Foto del producto (opcional, JPG/PNG, máx. 2 MB) |
 
 3. Presioná **Guardar**.
+
+> Las imágenes se almacenan en `storage/app/public/products`. En el servidor debe existir el enlace simbólico (`php artisan storage:link`).
 
 ### 6.3 Editar un producto
 
@@ -261,6 +264,40 @@ La tabla muestra: nombre, apellido, teléfono y email de cada usuario registrado
 2. Confirmá la acción.
 
 > **Nota:** No podés eliminar tu propia cuenta de administrador.
+
+---
+
+## 7.5 Consultas del sitio (solo administrador)
+
+**Ruta:** `/inquiries`
+
+Cuando un visitante envía el formulario de contacto en la landing, la consulta queda registrada en el sistema. Desde este panel podés gestionarlas.
+
+### Ver consultas
+
+La tabla muestra:
+
+| Columna | Descripción |
+|---------|-------------|
+| Fecha | Momento en que se envió el mensaje |
+| Nombre | Nombre del visitante |
+| Email | Correo de contacto |
+| Mensaje | Texto (resumido en la tabla) |
+| Estado | `Pendiente`, `Leída` o `Respondida` |
+
+### Ver detalle y cambiar estado
+
+1. Hacé clic en el ícono de **ojo** en la fila de la consulta.
+2. Leé el mensaje completo y el email del visitante.
+3. Seleccioná el nuevo estado en el desplegable.
+4. Presioná **Actualizar estado**.
+
+### Eliminar una consulta
+
+1. Hacé clic en el ícono de **X**.
+2. Confirmá la eliminación.
+
+> Los estados ayudan a llevar seguimiento: `Pendiente` (sin revisar), `Leída` (vista por el equipo), `Respondida` (ya contestada al cliente).
 
 ---
 
@@ -442,7 +479,9 @@ Sin estas claves, el sistema crea el registro de pago pero no puede redirigir a 
         ↓
 3. Email de notificación a contacto@infrasoft.com.ar
         ↓
-4. Mensaje de confirmación al visitante
+4. El administrador revisa y gestiona la consulta en /inquiries
+        ↓
+5. Mensaje de confirmación al visitante
 ```
 
 ---
@@ -490,11 +529,13 @@ Usá la URL del servidor donde está instalado (ej: `http://tu-servidor:8000`). 
 |------|---------------------|---------|
 | `/` | Todos | Landing pública |
 | `/servicios` | Todos | Catálogo de servicios |
+| `/blog` | Todos | Artículos y novedades |
 | `/login` | Todos | Iniciar sesión |
 | `/register` | Todos | Registrarse |
 | `/dashboard` | Autenticados | Panel de control |
 | `/products` | Admin | Gestión de productos |
 | `/users` | Admin | Gestión de usuarios |
+| `/inquiries` | Admin | Consultas del sitio web |
 | `/sales` | Autenticados | Ventas |
 | `/payments` | Autenticados | Pagos |
 | `/profile` | Autenticados | Perfil personal |

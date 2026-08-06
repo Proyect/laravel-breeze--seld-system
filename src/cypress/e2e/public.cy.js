@@ -24,10 +24,14 @@ describe('Sitio público', () => {
     cy.get('button[type="submit"]').should('be.visible')
   })
 
-  it('muestra la página de registro', () => {
-    cy.visit('/register')
-    cy.get('input[name="name"]').should('be.visible')
-    cy.get('input[name="email"]').should('be.visible')
-    cy.get('input[name="password"]').should('be.visible')
+  it('carga un artículo del blog', () => {
+    cy.visit('/blog/laravel-proximo-proyecto-web')
+    cy.contains('Por qué elegir Laravel').should('be.visible')
+    cy.contains('Volver al blog').should('be.visible')
+  })
+
+  it('carga el listado del blog', () => {
+    cy.visit('/blog')
+    cy.contains('Últimas publicaciones').should('be.visible')
   })
 })

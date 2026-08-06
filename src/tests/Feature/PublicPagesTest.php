@@ -43,4 +43,23 @@ class PublicPagesTest extends TestCase
         $this->post('/search', ['q' => 'hosting'])
             ->assertOk();
     }
+
+    public function test_blog_index_loads(): void
+    {
+        $this->get('/blog')
+            ->assertOk()
+            ->assertSee('Últimas publicaciones');
+    }
+
+    public function test_blog_article_loads(): void
+    {
+        $this->get('/blog/laravel-proximo-proyecto-web')
+            ->assertOk()
+            ->assertSee('Por qué elegir Laravel');
+    }
+
+    public function test_invalid_blog_article_returns_404(): void
+    {
+        $this->get('/blog/no-existe')->assertNotFound();
+    }
 }

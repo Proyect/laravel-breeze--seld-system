@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\MercadoPagoWebhookController;
@@ -28,6 +29,10 @@ Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.
 Route::get('/servicios/{slug}', [ServicioController::class, 'detalle'])->name('servicios.detalle');
 Route::post('/servicios/{slug}/relevamiento', [ServicioController::class, 'relevamiento'])->name('servicios.relevamiento');
 Route::get('/api/tecnologias/{categoria}', [ServicioController::class, 'tecnologiasPorCategoria'])->name('api.tecnologias.categoria');
+
+// Blog
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 // Redirecciones de URLs legacy del sitio anterior
 Route::redirect('/page/servicios/desarrollo-de-software', '/servicios/desarrollo-software');

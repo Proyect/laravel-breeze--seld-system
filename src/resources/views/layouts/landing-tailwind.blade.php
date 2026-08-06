@@ -85,7 +85,7 @@
                     <a href="/#portfolio" class="nav-link text-sm lg:text-base">Portfolio</a>
                     <a href="/#ventajas" class="nav-link text-sm lg:text-base">Ventajas</a>
                     <a href="/#about" class="nav-link text-sm lg:text-base">Nosotros</a>
-                    <a href="/#blog" class="nav-link text-sm lg:text-base">Blog</a>
+                    <a href="{{ route('blog.index') }}" class="nav-link text-sm lg:text-base">Blog</a>
                     <a href="/#contacto" class="nav-link text-sm lg:text-base">Contacto</a>
                     @auth
                         <a href="{{ route('dashboard') }}" class="btn-primary ml-2 px-5 py-2.5 text-white text-sm font-semibold rounded-lg">Panel</a>

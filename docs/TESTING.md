@@ -8,8 +8,8 @@ Guía de pruebas automatizadas: PHPUnit y Cypress.
 
 | Suite | Framework | Tests | Ubicación |
 |-------|-----------|-------|-----------|
-| Backend | PHPUnit 11 | 41 | `src/tests/` |
-| E2E | Cypress 15 | 21 | `src/cypress/e2e/` |
+| Backend | PHPUnit 11 | 50 | `src/tests/` |
+| E2E | Cypress 15 | 22 | `src/cypress/e2e/` |
 
 ---
 
@@ -42,7 +42,8 @@ php artisan test --parallel
 | `SalesTest.php` | Crear, listar, ver ventas |
 | `PaymentTest.php` | Crear pagos, success/cancel |
 | `ContactTest.php` | Formulario de contacto |
-| `PublicPagesTest.php` | Landing, servicios, búsqueda |
+| `InquiryManagementTest.php` | Panel admin de consultas |
+| `PublicPagesTest.php` | Landing, servicios, blog, búsqueda |
 
 ### Trait de ayuda
 
@@ -108,6 +109,13 @@ cy.loginAsAdmin()
 ```javascript
 baseUrl: 'http://127.0.0.1:8000'
 ```
+
+### CI (GitHub Actions)
+
+En cada push o pull request a `master`/`main`, el workflow `.github/workflows/laravel.yml` ejecuta:
+
+1. **laravel-tests** — `composer install`, `npm run build`, migraciones y `php artisan test`
+2. **cypress-e2e** — servidor Laravel en segundo plano y `npm run test:e2e`
 
 ---
 
