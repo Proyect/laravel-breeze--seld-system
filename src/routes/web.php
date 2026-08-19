@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SiteConstroller;
+use App\Http\Controllers\SiteController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\PayController;
@@ -13,9 +13,9 @@ Route::get('/', function () {
 });
 
 //site
-Route::get("/site", [SiteConstroller::class,"index"])->name('site.index');
-Route::get('/site/{$site}',[SiteConstroller::class,'getSite'])->name('site.detail');
-Route::post('/search/',[SiteConstroller::class,'search'])->name('site.search');
+Route::get("/site", [SiteController::class,"index"])->name('site.index');
+Route::get('/site/{site}',[SiteController::class,'getSite'])->name('site.detail');
+Route::post('/search',[SiteController::class,'search'])->name('site.search');
 Route::post('/contacto', [ContactController::class, 'submit'])->name('contact.submit');
 
 // Servicios
