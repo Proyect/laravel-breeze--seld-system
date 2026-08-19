@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                        <x-infrasoft-logo variant="nav" />
                     </a>
                 </div>
 
@@ -16,24 +16,31 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+                @if(auth()->user()->role === 'admin')
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{route('products.index')}}" >
+                    <x-nav-link href="{{ route('products.index') }}" :active="request()->routeIs('products.*')">
                         Productos
-                    </x-nav-link>    
+                    </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{route('users.index')}}" >
-                        Users
-                    </x-nav-link>    
+                    <x-nav-link href="{{ route('users.index') }}" :active="request()->routeIs('users.*')">
+                        Usuarios
+                    </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{route('sales.index')}}" >
-                        Sales
-                    </x-nav-link>    
+                    <x-nav-link href="{{ route('inquiries.index') }}" :active="request()->routeIs('inquiries.*')">
+                        Consultas
+                    </x-nav-link>
+                </div>
+                @endif
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link href="{{ route('sales.index') }}" :active="request()->routeIs('sales.*')">
+                        Ventas
+                    </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{route('pays.index')}}" >
-                        Pay
+                    <x-nav-link href="{{ route('payments.index') }}" >
+                        Pagos
                     </x-nav-link>    
                 </div>
             </div>

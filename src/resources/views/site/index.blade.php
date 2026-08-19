@@ -10,16 +10,16 @@
     <style>
         /* Hero Section Styles */
         .hero-bg {
-            background-image: url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1500&q=80'), 
-                              linear-gradient(135deg, #0a2239 0%, #0066cc 100%);
+            background-image:
+                url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1500&q=80'),
+                linear-gradient(135deg, #0a192f 0%, #0d2847 40%, #0066cc 100%);
             background-size: cover, cover;
             background-position: center, center;
             background-repeat: no-repeat, no-repeat;
-            min-height: 500px;
+            min-height: 520px;
             position: relative;
         }
-        
-        /* Fallback si la imagen no carga */
+
         .hero-bg::before {
             content: '';
             position: absolute;
@@ -27,12 +27,12 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #0a2239 0%, #0066cc 100%);
-            z-index: -1;
+            background: linear-gradient(135deg, rgba(10,25,47,0.92) 0%, rgba(13,40,71,0.85) 50%, rgba(0,102,204,0.75) 100%);
+            z-index: 0;
         }
-        
+
         .hero-overlay {
-            background: linear-gradient(120deg, rgba(10,34,57,0.85) 60%, rgba(0,170,255,0.7) 100%);
+            background: linear-gradient(180deg, rgba(10,25,47,0.3) 0%, rgba(0,0,0,0.15) 100%);
         }
         
         /* Swiper Customization */
@@ -69,13 +69,16 @@
         
         /* Button Hover Effects */
         .hero-btn {
+            background: linear-gradient(135deg, #0066cc 0%, #0088ee 100%);
+            box-shadow: 0 4px 20px rgba(0, 102, 204, 0.4);
+            border-radius: 0.5rem;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        
+
         .hero-btn:hover {
+            background: linear-gradient(135deg, #0055aa 0%, #0077dd 100%);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.5);
         }
         
         /* Responsive Adjustments */
@@ -94,17 +97,20 @@
         .swiper-button-next,
         .swiper-button-prev {
             color: white !important;
-            background: rgba(0, 0, 0, 0.3);
-            width: 50px !important;
-            height: 50px !important;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 48px !important;
+            height: 48px !important;
             border-radius: 50%;
             transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
         }
-        
+
         .swiper-button-next:hover,
         .swiper-button-prev:hover {
-            background: rgba(0, 0, 0, 0.6);
-            transform: scale(1.1);
+            background: rgba(0, 102, 204, 0.6);
+            border-color: rgba(0, 170, 255, 0.4);
+            transform: scale(1.08);
         }
         
         .swiper-button-next::after,
@@ -739,30 +745,30 @@
 
 @section('container')
     <!-- Hero principal con slider y fondo -->
-    <section class="relative hero-bg py-0 mb-12 shadow-lg">
+    <section class="relative hero-bg py-0 shadow-xl">
         <div class="hero-overlay absolute inset-0 w-full h-full z-0"></div>
         <div class="relative z-10">
             <div class="swiper hero-swiper">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] px-4">
-                        <div class="hero-content text-center">
-                            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 drop-shadow-lg text-white tracking-tight">Soluciones Informáticas para tu Negocio</h1>
-                            <p class="text-lg md:text-2xl mb-8 font-light text-blue-100 max-w-3xl">Desarrollo de Software · Data Science · Seguridad Informática · SaaS</p>
-                            <a href="#contacto" class="hero-btn inline-block px-8 py-3 bg-blue-600 text-white font-semibold rounded shadow hover:bg-blue-700 transition">Solicita tu presupuesto</a>
+                    <div class="swiper-slide flex flex-col items-center justify-center min-h-[440px] md:min-h-[540px] px-4">
+                        <div class="hero-content text-center max-w-4xl mx-auto">
+                            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-5 drop-shadow-lg text-white tracking-tight leading-tight">Soluciones Informáticas para tu Negocio</h1>
+                            <p class="text-lg md:text-xl lg:text-2xl mb-10 font-light text-blue-100/90 max-w-3xl mx-auto leading-relaxed">Desarrollo de Software · Data Science · Seguridad Informática · SaaS</p>
+                            <a href="#contacto" class="hero-btn inline-block px-8 py-3.5 text-white font-semibold">Solicita tu presupuesto</a>
                         </div>
                     </div>
-                    <div class="swiper-slide flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] px-4">
-                        <div class="hero-content text-center">
-                            <h1 class="text-3xl md:text-4xl font-extrabold mb-4 drop-shadow-lg text-white tracking-tight">Transforma tu empresa con tecnología</h1>
-                            <p class="text-lg md:text-xl mb-8 font-light text-blue-100 max-w-3xl">Automatización, análisis de datos y seguridad a tu alcance</p>
-                            <a href="#servicio-desarrollo" class="hero-btn inline-block px-8 py-3 bg-blue-700 text-white font-semibold rounded shadow hover:bg-blue-800 transition">Ver servicios</a>
+                    <div class="swiper-slide flex flex-col items-center justify-center min-h-[440px] md:min-h-[540px] px-4">
+                        <div class="hero-content text-center max-w-4xl mx-auto">
+                            <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 drop-shadow-lg text-white tracking-tight leading-tight">Transforma tu empresa con tecnología</h1>
+                            <p class="text-lg md:text-xl mb-10 font-light text-blue-100/90 max-w-3xl mx-auto leading-relaxed">Automatización, análisis de datos y seguridad a tu alcance</p>
+                            <a href="#servicio-desarrollo" class="hero-btn inline-block px-8 py-3.5 text-white font-semibold">Ver servicios</a>
                         </div>
                     </div>
-                    <div class="swiper-slide flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] px-4">
-                        <div class="hero-content text-center">
-                            <h1 class="text-3xl md:text-4xl font-extrabold mb-4 drop-shadow-lg text-white tracking-tight">Soluciones SaaS y en la Nube</h1>
-                            <p class="text-lg md:text-xl mb-8 font-light text-blue-100 max-w-3xl">Escala tu negocio con plataformas modernas y seguras</p>
-                            <a href="#servicio-saas" class="hero-btn inline-block px-8 py-3 bg-cyan-600 text-white font-semibold rounded shadow hover:bg-cyan-700 transition">Descubre más</a>
+                    <div class="swiper-slide flex flex-col items-center justify-center min-h-[440px] md:min-h-[540px] px-4">
+                        <div class="hero-content text-center max-w-4xl mx-auto">
+                            <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-5 drop-shadow-lg text-white tracking-tight leading-tight">Soluciones SaaS y en la Nube</h1>
+                            <p class="text-lg md:text-xl mb-10 font-light text-blue-100/90 max-w-3xl mx-auto leading-relaxed">Escala tu negocio con plataformas modernas y seguras</p>
+                            <a href="#servicio-saas" class="hero-btn inline-block px-8 py-3.5 text-white font-semibold">Descubre más</a>
                         </div>
                     </div>
                 </div>
@@ -1484,26 +1490,9 @@
         </div>
     </section>
 
-    <!-- Ventajas -->
-    <section id="ventajas" class="bg-white py-16">
-        <div class="container mx-auto px-4">
-            <h2 class="text-2xl font-bold text-center mb-8 text-blue-700">¿Por qué elegirnos?</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                <div class="p-6 rounded-lg shadow hover:shadow-lg transition">
-                    <h3 class="font-semibold text-lg mb-2 text-blue-600">Experiencia</h3>
-                    <p>Más de 10 años desarrollando soluciones para empresas de todo el país y el mundo.</p>
-                </div>
-                <div class="p-6 rounded-lg shadow hover:shadow-lg transition">
-                    <h3 class="font-semibold text-lg mb-2 text-blue-600">Soporte Personalizado</h3>
-                    <p>Acompañamiento y asesoría en cada etapa de tu proyecto, desde la idea hasta la implementación.</p>
-                </div>
-                <div class="p-6 rounded-lg shadow hover:shadow-lg transition">
-                    <h3 class="font-semibold text-lg mb-2 text-blue-600">Innovación</h3>
-                    <p>Aplicamos las últimas tecnologías y metodologías para que tu negocio crezca seguro y escalable.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    @include('site.partials.portfolio-details')
+
+    @include('site.partials.ventajas')
 
     <!-- Testimonios -->
     <section id="testimonios" class="py-20 bg-gradient-to-r from-blue-50 via-white to-cyan-50">
@@ -1660,7 +1649,7 @@
                             </div>
                             <div>
                                 <h4 class="font-semibold text-white mb-1">Email</h4>
-                                <p class="text-blue-200">info@infrasoft.com</p>
+                                <p class="text-blue-200">contacto@infrasoft.com.ar</p>
                             </div>
                         </div>
 
@@ -1875,6 +1864,11 @@
         </div>
     </section>
 
+    @include('site.partials.about')
+    @include('site.partials.consultoria')
+    @include('site.partials.blog')
+    @include('site.partials.legal')
+
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-16">
         <div class="container mx-auto px-4">
@@ -1882,7 +1876,9 @@
                 <!-- Información de la Empresa -->
                 <div class="lg:col-span-2">
                     <div class="mb-6">
-                        <h3 class="text-2xl font-bold text-white mb-4">Infrasoft</h3>
+                        <a href="/" class="inline-block mb-4">
+                            <x-infrasoft-logo variant="header" class="!h-12 !max-w-[260px]" />
+                        </a>
                         <p class="text-gray-300 leading-relaxed mb-6">
                             Somos una empresa de desarrollo de software especializada en crear soluciones tecnológicas 
                             innovadoras que transforman negocios y potencian el crecimiento empresarial.
@@ -1911,6 +1907,7 @@
                 <div>
                     <h4 class="text-lg font-semibold text-white mb-4">Servicios</h4>
                     <ul class="space-y-2">
+                        <li><a href="/servicios" class="text-gray-300 hover:text-white transition">Todos los Servicios</a></li>
                         <li><a href="#servicio-desarrollo" class="text-gray-300 hover:text-white transition">Desarrollo de Software</a></li>
                         <li><a href="#servicio-datascience" class="text-gray-300 hover:text-white transition">Data Science</a></li>
                         <li><a href="#servicio-seguridad" class="text-gray-300 hover:text-white transition">Ciberseguridad</a></li>
@@ -1936,7 +1933,7 @@
             <div class="border-t border-gray-700 pt-8">
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="text-gray-400 text-sm mb-4 md:mb-0">
-                        © 2024 Infrasoft. Todos los derechos reservados.
+                        © {{ date('Y') }} Infrasoft Servicios Informáticos. Todos los derechos reservados.
                     </div>
                     <div class="flex space-x-6 text-sm">
                         <a href="#privacy" class="text-gray-400 hover:text-white transition">Política de Privacidad</a>
@@ -1947,6 +1944,9 @@
             </div>
         </div>
     </footer>
+@endsection
+
+@section('footer')
 @endsection
 
 @push('scripts')

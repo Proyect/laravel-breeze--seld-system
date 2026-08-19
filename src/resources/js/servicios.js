@@ -11,7 +11,6 @@ class ServiciosManager {
     init() {
         this.setupEventListeners();
         this.initializeAnimations();
-        this.setupTechnologyCards();
     }
 
     setupEventListeners() {

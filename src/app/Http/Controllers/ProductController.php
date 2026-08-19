@@ -2,57 +2,84 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use GuzzleHttp\Psr7\Request;
+use App\Models\Product;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    
     public function index()
     {
         $products = Product::all();
+
         return view('products.index', compact('products'));
     }
-        
-    public function create()
+
+    public function create(): JsonResponse
     {
-        $user = Product::all(); //dd($user);
-        return response()->json($user);
+        return response()->json(Product::all());
     }
 
-    public function store(StoreProductRequest $request)
-    {   
-        $request->fill($request->except("_method",'_token'));
-        Product::create($request->all());
-        return redirect()->route('products.index');
-    }
-    
+    public function store(StoreProductRequest $request): JsonResponse
+    {
+        $product = Product::create($this->prepareProductData($request));
 
-    public function update(UpdateProductRequest $request)    
+        return response()->json([
+            'result' => true,
+            'mje' => 'Producto creado correctamente',
+            'data' => $product,
+        ]);
+    }
+
+    public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
-        $product = Product::find($request->id);        
-        if ($product->save()) {
-            $result = ["result"=>true, "mje"=>"Se actualizaron los datos correctamente"];
-        }
-        else{
-            $result = ["result"=>false, "mje"=>"Los datos no se actualizaron correctamente"];
-        }        
-        return response()->json( $result);
-    } 
-   
-    public function destroy(Request $request)
+        $product->update($this->prepareProductData($request, $product));
+
+        return response()->json([
+            'result' => true,
+            'mje' => 'Producto actualizado correctamente',
+            'data' => $product->fresh(),
+        ]);
+    }
+
+    public function destroy(Product $product): JsonResponse
     {
-        $product = Product::find($request ); 
-        if ($product->save()) {
-            $result = ["result"=>true, "mje"=>"Se actualizaron los datos correctamente"];
+        $this->deleteProductImages($product);
+        $product->delete();
+
+        return response()->json([
+            'result' => true,
+            'mje' => 'Producto eliminado correctamente',
+            'data' => Product::all(),
+        ]);
+    }
+
+    private function prepareProductData(Request $request, ?Product $product = null): array
+    {
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $images = $product?->images ?? [];
+            $images[] = Storage::url($path);
+            $data['images'] = $images;
         }
-        else{
-            $result = ["result"=>true, "mje"=>"Se actualizaron los datos correctamente"];
+
+        unset($data['image']);
+
+        return $data;
+    }
+
+    private function deleteProductImages(Product $product): void
+    {
+        foreach ($product->images ?? [] as $url) {
+            $path = str_replace('/storage/', '', parse_url($url, PHP_URL_PATH) ?? '');
+            if ($path && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
         }
-        $product = Product::all();
-        return response()->json([ $product , $result]);
     }
 }

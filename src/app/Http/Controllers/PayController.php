@@ -2,89 +2,82 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Payment;
 use App\Services\Payments\PaymentService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class PayController extends Controller
 {
-    private PaymentService $paymentService;
-
-    public function __construct(PaymentService $paymentService)
+    public function __construct(private PaymentService $paymentService)
     {
-        $this->paymentService = $paymentService;
     }
 
-    public function index()
+    public function index(): View
     {
-        $pay = Payment::all();
-        return view('pay.index',compact('pay'));
+        $payments = Payment::with('sale')->latest()->get();
+
+        return view('pay.index', compact('payments'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
-            'sale_id' => ['nullable', 'integer'],
+            'sale_id' => ['nullable', 'integer', 'exists:sales,id'],
             'amount' => ['required', 'numeric', 'min:0.5'],
             'currency' => ['nullable', 'string', 'size:3'],
             'method' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $payment = new Payment();
-        $payment->sale_id = $data['sale_id'] ?? null;
-        $payment->amount = $data['amount'];
-        $payment->currency = $data['currency'] ?? 'ARS';
-        $payment->method = $data['method'] ?? null;
-        $payment->status = 'active';
-        $payment->payment_status = 'pending';
-        $payment->save();
+        $currency = strtoupper($data['currency'] ?? 'ARS');
+
+        $payment = Payment::create([
+            'sale_id' => $data['sale_id'] ?? null,
+            'amount' => $data['amount'],
+            'currency' => $currency,
+            'method' => $data['method'] ?? ($currency === 'ARS' ? 'mercadopago' : 'stripe'),
+            'status' => 'active',
+            'payment_status' => 'pending',
+        ]);
 
         $intent = $this->paymentService->createPayment($payment);
 
-        return response()->json($intent);
+        if ($request->expectsJson()) {
+            return response()->json($intent);
+        }
+
+        if (! empty($intent['redirect_url'])) {
+            return redirect()->away($intent['redirect_url']);
+        }
+
+        return back()->with('error', 'No se pudo iniciar el pago. Verificá la configuración de la pasarela.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function success(Request $request): View
     {
-        //
+        $payment = null;
+
+        if ($request->filled('payment_id')) {
+            $payment = Payment::find($request->payment_id);
+            if ($payment && $payment->payment_status === 'pending') {
+                $payment->update(['payment_status' => 'approved']);
+            }
+        }
+
+        return view('pay.success', compact('payment'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function cancel(Request $request): View
     {
-        //
-    }
+        $payment = $request->filled('payment_id')
+            ? Payment::find($request->payment_id)
+            : null;
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        if ($payment && $payment->payment_status === 'pending') {
+            $payment->update(['payment_status' => 'rejected']);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('pay.cancel', compact('payment'));
     }
 }

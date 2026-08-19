@@ -1,0 +1,7 @@
+# Herramientas portables (descargar con tools/setup.ps1)
+tools/php/
+tools/composer.phar
+
+# Entorno local
+.env
+.env.*

@@ -1,25 +1,22 @@
-<?php
-   /*********************************************
-	 *  Sitio web infrasoft
-	 * https://infrasoft.com.ar/
-	 * Salta Capital
-	 * Derechos reservados
-	 **********************************************/
-      
-?>
-@extends('layouts.site')
+@extends('layouts.landing-tailwind')
+
+@section('title', 'Búsqueda | Infrasoft')
 
 @section('container')
-<div class='row'>
-	@foreach ($search as $item)
-		 @include('components.list-animation',
-		 ["title"=> $item["title"],
-		   "link"=>"/".$item["categoria"].".".$item["pagina"],
-		   "detail"=>$item["descripcion"] ])
-	@endforeach
-	
-</div>
-<div class="container text-center">
-	<p>Se han encontrado {{$count ?? ""}} resultados</p>
+<div class="container mx-auto px-4 py-12 max-w-4xl">
+    <h1 class="text-3xl font-bold mb-6">Resultados de búsqueda</h1>
+
+    @if(!empty($query))
+        <p class="text-gray-600 mb-8">Buscando: <strong>{{ $query }}</strong></p>
+    @endif
+
+    @forelse($search as $item)
+        <div class="bg-white rounded-lg shadow p-4 mb-4">
+            <h2 class="text-xl font-semibold">{{ $item['title'] ?? 'Resultado' }}</h2>
+            <p class="text-gray-600">{{ $item['descripcion'] ?? '' }}</p>
+        </div>
+    @empty
+        <p class="text-gray-500">No se encontraron resultados.</p>
+    @endforelse
 </div>
 @endsection
