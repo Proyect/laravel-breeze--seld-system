@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
+use App\Models\Sales;
 use App\Services\Payments\PaymentService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -16,9 +16,23 @@ class PayController extends Controller
 
     public function index(): View
     {
-        $payments = Payment::with('sale')->latest()->get();
+        $user = auth()->user();
 
-        return view('pay.index', compact('payments'));
+        $query = Payment::with('sale')->latest();
+
+        if (! $user->isAdmin()) {
+            $query->where('user_id', $user->id);
+        }
+
+        $payments = $query->paginate(20);
+
+        $pendingSalesQuery = Sales::where('status', 'pending')->latest();
+        if (! $user->isAdmin()) {
+            $pendingSalesQuery->where('user_id', $user->id);
+        }
+        $pendingSales = $pendingSalesQuery->get();
+
+        return view('pay.index', compact('payments', 'pendingSales'));
     }
 
     public function store(Request $request)
@@ -30,9 +44,24 @@ class PayController extends Controller
             'method' => ['nullable', 'string', 'max:50'],
         ]);
 
+        $sale = null;
+
+        if (! empty($data['sale_id'])) {
+            $sale = Sales::findOrFail($data['sale_id']);
+
+            if (! auth()->user()->isAdmin() && $sale->user_id !== auth()->id()) {
+                abort(403);
+            }
+
+            if ($sale->status !== 'pending') {
+                return back()->with('error', 'Solo se pueden pagar ventas en estado pending.');
+            }
+        }
+
         $currency = strtoupper($data['currency'] ?? 'ARS');
 
         $payment = Payment::create([
+            'user_id' => $sale?->user_id ?? auth()->id(),
             'sale_id' => $data['sale_id'] ?? null,
             'amount' => $data['amount'],
             'currency' => $currency,
@@ -56,28 +85,34 @@ class PayController extends Controller
 
     public function success(Request $request): View
     {
-        $payment = null;
-
-        if ($request->filled('payment_id')) {
-            $payment = Payment::find($request->payment_id);
-            if ($payment && $payment->payment_status === 'pending') {
-                $payment->update(['payment_status' => 'approved']);
-            }
-        }
+        $payment = $this->findOwnedPayment($request);
 
         return view('pay.success', compact('payment'));
     }
 
     public function cancel(Request $request): View
     {
-        $payment = $request->filled('payment_id')
-            ? Payment::find($request->payment_id)
-            : null;
-
-        if ($payment && $payment->payment_status === 'pending') {
-            $payment->update(['payment_status' => 'rejected']);
-        }
+        $payment = $this->findOwnedPayment($request);
 
         return view('pay.cancel', compact('payment'));
+    }
+
+    private function findOwnedPayment(Request $request): ?Payment
+    {
+        if (! $request->filled('payment_id')) {
+            return null;
+        }
+
+        $payment = Payment::find($request->payment_id);
+
+        if (! $payment) {
+            return null;
+        }
+
+        if (! auth()->user()->isAdmin() && $payment->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return $payment;
     }
 }

@@ -129,6 +129,12 @@ class MercadoPagoGateway implements PaymentGateway
             default => 'pending',
         };
 
-        $payment->save();
+        if ($payment->payment_status === 'approved') {
+            $payment->markAsApproved();
+        } elseif ($payment->payment_status === 'rejected') {
+            $payment->markAsRejected();
+        } else {
+            $payment->save();
+        }
     }
 }

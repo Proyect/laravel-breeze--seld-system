@@ -51,7 +51,8 @@ class AuthenticationTest extends TestCase
 
         $this->actingAs($user)
             ->get('/dashboard')
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('Panel de control');
     }
 
     public function test_users_can_logout(): void

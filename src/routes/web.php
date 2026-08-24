@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\MercadoPagoWebhookController;
 use App\Http\Controllers\PayController;
@@ -21,8 +22,8 @@ Route::get('/', function () {
 // Sitio público
 Route::get('/site', [SiteConstroller::class, 'index'])->name('site.index');
 Route::get('/site/{site}', [SiteConstroller::class, 'getSite'])->name('site.detail');
-Route::post('/search', [SiteConstroller::class, 'search'])->name('site.search');
-Route::post('/contacto', [ContactController::class, 'submit'])->name('contact.submit');
+Route::match(['get', 'post'], '/search', [SiteConstroller::class, 'search'])->middleware('throttle:30,1')->name('site.search');
+Route::post('/contacto', [ContactController::class, 'submit'])->middleware('throttle:5,1')->name('contact.submit');
 
 // Servicios
 Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
@@ -47,9 +48,7 @@ Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'hand
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])->name('webhooks.stripe');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -63,6 +62,7 @@ Route::middleware('auth')->group(function () {
 
     // Ventas (usuarios autenticados)
     Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
+    Route::get('/sales/create', [SalesController::class, 'create'])->name('sales.create');
     Route::post('/sales', [SalesController::class, 'store'])->name('sales.store');
     Route::get('/sales/{sales}', [SalesController::class, 'show'])->name('sales.show');
     Route::put('/sales/{sales}', [SalesController::class, 'update'])->name('sales.update');

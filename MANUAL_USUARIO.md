@@ -332,7 +332,13 @@ La tabla muestra:
 
 ### 8.3 Crear una venta
 
-Las ventas se crean asociando productos al carrito. El sistema calcula automáticamente el total según precio × cantidad.
+1. Entrá a `/sales` y hacé clic en **Nueva venta**.
+2. Indicá la cantidad de cada producto disponible (con stock).
+3. El total se calcula automáticamente.
+4. Presioná **Crear venta**.
+5. Quedás en el detalle de la venta en estado `pending`, listo para pagar.
+
+Al crear la venta se descuenta el stock de cada producto.
 
 ### 8.4 Estados de venta
 
@@ -343,7 +349,8 @@ Las ventas se crean asociando productos al carrito. El sistema calcula automáti
 | `shipped` | Enviada / en curso |
 | `completed` | Finalizada |
 
-> Solo el administrador puede cambiar el estado de una venta.
+> Solo el administrador puede cambiar el estado de una venta (desde el detalle de la venta).
+> Cuando un pago se aprueba por webhook, la venta pasa automáticamente de `pending` a `processing`.
 
 ---
 

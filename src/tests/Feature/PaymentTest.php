@@ -40,9 +40,11 @@ class PaymentTest extends TestCase
         ]);
     }
 
-    public function test_payment_success_page_is_accessible(): void
+    public function test_payment_success_does_not_auto_approve(): void
     {
+        $user = $this->createUser();
         $payment = Payment::create([
+            'user_id' => $user->id,
             'method' => 'mercadopago',
             'status' => 'active',
             'amount' => 100,
@@ -50,7 +52,65 @@ class PaymentTest extends TestCase
             'payment_status' => 'pending',
         ]);
 
-        $this->actingAs($this->createUser())
+        $this->actingAs($user)
+            ->get("/payments/success?payment_id={$payment->id}")
+            ->assertOk();
+
+        $this->assertEquals('pending', $payment->fresh()->payment_status);
+    }
+
+    public function test_user_cannot_pay_another_users_sale(): void
+    {
+        $owner = $this->createUser();
+        $other = \App\Models\User::factory()->create(['role' => 'user']);
+        $sale = \App\Models\Sales::create([
+            'user_id' => $owner->id,
+            'status' => 'pending',
+            'total_amount' => 500,
+        ]);
+
+        $this->actingAs($other)
+            ->post('/payments', [
+                'sale_id' => $sale->id,
+                'amount' => 500,
+                'currency' => 'ARS',
+            ])
+            ->assertForbidden();
+    }
+
+    public function test_user_only_sees_own_payments(): void
+    {
+        $user = $this->createUser();
+        $other = \App\Models\User::factory()->create(['role' => 'user']);
+
+        Payment::create([
+            'user_id' => $other->id,
+            'method' => 'mercadopago',
+            'status' => 'active',
+            'amount' => 999,
+            'currency' => 'ARS',
+            'payment_status' => 'pending',
+        ]);
+
+        $this->actingAs($user)
+            ->get('/payments')
+            ->assertOk()
+            ->assertDontSee('999');
+    }
+
+    public function test_payment_success_page_is_accessible(): void
+    {
+        $user = $this->createUser();
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'method' => 'mercadopago',
+            'status' => 'active',
+            'amount' => 100,
+            'currency' => 'ARS',
+            'payment_status' => 'pending',
+        ]);
+
+        $this->actingAs($user)
             ->get("/payments/success?payment_id={$payment->id}")
             ->assertOk();
     }

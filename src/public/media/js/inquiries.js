@@ -43,6 +43,7 @@ function FormView(el) {
     const date = item.created_at ? new Date(item.created_at).toLocaleString('es-AR') : '';
     $('#view-name').text(item.name);
     $('#view-email').text(item.email).attr('href', 'mailto:' + item.email);
+    $('#view-phone').text(item.phone || '—');
     $('#view-date').text(date);
     $('#view-message').text(item.message);
     $('#status-id').val(item.id);
