@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
@@ -10,19 +11,18 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ServicioController;
-use App\Http\Controllers\SiteConstroller;
+use App\Http\Controllers\SiteController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('site.index');
 });
 
 // Sitio público
-Route::get('/site', [SiteConstroller::class, 'index'])->name('site.index');
-Route::get('/site/{site}', [SiteConstroller::class, 'getSite'])->name('site.detail');
-Route::match(['get', 'post'], '/search', [SiteConstroller::class, 'search'])->middleware('throttle:30,1')->name('site.search');
+Route::get('/site', [SiteController::class, 'index'])->name('site.index');
+Route::get('/site/{site}', [SiteController::class, 'getSite'])->name('site.detail');
+Route::match(['get', 'post'], '/search', [SiteController::class, 'search'])->middleware('throttle:30,1')->name('site.search');
 Route::post('/contacto', [ContactController::class, 'submit'])->middleware('throttle:5,1')->name('contact.submit');
 
 // Servicios
@@ -41,7 +41,9 @@ Route::redirect('/page/servicios/desarrollo-web', '/servicios/desarrollo-softwar
 Route::redirect('/page/institucional/institucional', '/#about');
 Route::redirect('/page/contacto/contacto', '/#contacto');
 Route::redirect('/page/productos/productos', '/servicios');
-Route::get('/page/{any}', fn () => redirect('/servicios'))->where('any', '.*');
+Route::get('/page/{any}', function () {
+    return redirect('/servicios');
+})->where('any', '.*');
 
 // Webhooks (sin CSRF)
 Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'handle'])->name('webhooks.mercadopago');
