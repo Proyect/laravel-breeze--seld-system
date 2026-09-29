@@ -6,17 +6,22 @@ use App\Http\Requests\StoreSalesRequest;
 use App\Http\Requests\UpdateSalesRequest;
 use App\Models\Product;
 use App\Models\Sales;
-use App\Models\SalesDetail;
+use App\Services\Sales\CreateSaleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class SalesController extends Controller
 {
+    public function __construct(private CreateSaleService $createSaleService)
+    {
+    }
+
     public function index(): View
     {
+        $this->authorize('viewAny', Sales::class);
+
         $query = Sales::with(['user', 'products'])->latest();
 
         if (! auth()->user()->isAdmin()) {
@@ -30,6 +35,8 @@ class SalesController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', Sales::class);
+
         $products = Product::where('status', 'active')
             ->where('stock', '>', 0)
             ->orderBy('name')
@@ -40,82 +47,27 @@ class SalesController extends Controller
 
     public function list(): JsonResponse
     {
+        $this->authorize('viewAny', Sales::class);
+
         $query = Sales::with(['user', 'products'])->latest();
 
         if (! auth()->user()->isAdmin()) {
             $query->where('user_id', auth()->id());
         }
 
-        return response()->json($query->get());
+        return response()->json($query->paginate(15));
     }
 
     public function store(StoreSalesRequest $request): RedirectResponse|JsonResponse
     {
+        $this->authorize('create', Sales::class);
+
         try {
-            $sale = DB::transaction(function () use ($request) {
-                $productIds = array_keys($request->products);
-                $products = Product::whereIn('id', $productIds)
-                    ->where('status', 'active')
-                    ->lockForUpdate()
-                    ->get();
-
-                if ($products->count() !== count($productIds)) {
-                    throw ValidationException::withMessages([
-                        'products' => 'Uno o más productos no están disponibles.',
-                    ]);
-                }
-
-                $total = 0;
-
-                $sale = Sales::create([
-                    'user_id' => auth()->id(),
-                    'status' => 'pending',
-                    'total_amount' => 0,
-                ]);
-
-                foreach ($products as $product) {
-                    $quantity = (int) ($request->products[$product->id] ?? 1);
-
-                    if ($quantity < 1) {
-                        continue;
-                    }
-
-                    if ($product->stock < $quantity) {
-                        throw ValidationException::withMessages([
-                            'products' => "Stock insuficiente para {$product->name} (disponible: {$product->stock}).",
-                        ]);
-                    }
-
-                    $unitPrice = $product->price;
-                    $subtotal = $unitPrice * $quantity;
-                    $total += $subtotal;
-
-                    $sale->products()->attach($product->id, [
-                        'quantity' => $quantity,
-                        'unit_price' => $unitPrice,
-                    ]);
-
-                    SalesDetail::create([
-                        'sales_id' => $sale->id,
-                        'product_id' => $product->id,
-                        'quantity' => $quantity,
-                        'unit_price' => $unitPrice,
-                        'subtotal' => $subtotal,
-                    ]);
-
-                    $product->decrement('stock', $quantity);
-                }
-
-                if ($total <= 0) {
-                    throw ValidationException::withMessages([
-                        'products' => 'Seleccioná al menos un producto con cantidad mayor a 0.',
-                    ]);
-                }
-
-                $sale->update(['total_amount' => $total]);
-
-                return $sale->load('products');
-            });
+            $sale = $this->createSaleService->execute(
+                $request->validated()['products'],
+                auth()->id(),
+                $request->validated()['idempotency_key'] ?? null,
+            );
         } catch (ValidationException $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -141,9 +93,7 @@ class SalesController extends Controller
 
     public function show(Sales $sales): View
     {
-        if (! auth()->user()->isAdmin() && $sales->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('view', $sales);
 
         $sales->load(['user', 'products', 'payments']);
 
@@ -152,6 +102,8 @@ class SalesController extends Controller
 
     public function update(UpdateSalesRequest $request, Sales $sales): RedirectResponse|JsonResponse
     {
+        $this->authorize('update', $sales);
+
         $sales->update($request->validated());
 
         if ($request->expectsJson()) {
@@ -167,9 +119,7 @@ class SalesController extends Controller
 
     public function destroy(Sales $sales): JsonResponse
     {
-        if (! auth()->user()->isAdmin() && $sales->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('delete', $sales);
 
         $sales->delete();
 

@@ -36,4 +36,11 @@ class Sales extends Model
     {
         return $this->hasMany(Payment::class, 'sale_id');
     }
+
+    public function restoreStock(): void
+    {
+        foreach ($this->details()->get() as $detail) {
+            Product::where('id', $detail->product_id)->increment('stock', $detail->quantity);
+        }
+    }
 }

@@ -97,11 +97,19 @@ class StripeGateway implements PaymentGateway
                 /** @var \Stripe\Checkout\Session $session */
                 $session = $event->data->object;
                 $this->markPaymentAsApprovedBySessionId($session->id);
+                $this->attachPaymentIntentId($session);
                 break;
 
             case 'payment_intent.payment_failed':
                 if (isset($event->data->object->id)) {
-                    $this->markPaymentAsRejectedByProviderId($event->data->object->id);
+                    $this->markPaymentAsRejectedByPaymentIntentId($event->data->object->id);
+                }
+                break;
+
+            case 'charge.refunded':
+                $paymentIntentId = $event->data->object->payment_intent ?? null;
+                if ($paymentIntentId) {
+                    $this->markPaymentAsRefundedByPaymentIntentId($paymentIntentId);
                 }
                 break;
         }
@@ -116,12 +124,39 @@ class StripeGateway implements PaymentGateway
         }
     }
 
-    private function markPaymentAsRejectedByProviderId(string $providerId): void
+    private function attachPaymentIntentId(Session $session): void
     {
-        $payment = Payment::where('provider_payment_id', $providerId)->first();
+        if (! $session->payment_intent) {
+            return;
+        }
+
+        $payment = Payment::where('provider_payment_id', $session->id)->first();
+
+        if (! $payment) {
+            return;
+        }
+
+        $metadata = $payment->metadata ?? [];
+        $metadata['stripe_payment_intent_id'] = $session->payment_intent;
+        $payment->metadata = $metadata;
+        $payment->save();
+    }
+
+    private function markPaymentAsRejectedByPaymentIntentId(string $paymentIntentId): void
+    {
+        $payment = Payment::where('metadata->stripe_payment_intent_id', $paymentIntentId)->first();
 
         if ($payment) {
             $payment->markAsRejected();
+        }
+    }
+
+    private function markPaymentAsRefundedByPaymentIntentId(string $paymentIntentId): void
+    {
+        $payment = Payment::where('metadata->stripe_payment_intent_id', $paymentIntentId)->first();
+
+        if ($payment) {
+            $payment->markAsRefunded();
         }
     }
 }

@@ -16,6 +16,16 @@ class MercadoPagoWebhookController extends Controller
 
     public function handle(Request $request)
     {
+        $expected = config('services.mercadopago.notification_token');
+
+        if ($expected === null) {
+            abort(403, 'Token de notificación no configurado.');
+        }
+
+        if ($request->query('token') !== $expected) {
+            abort(403, 'Token de notificación inválido.');
+        }
+
         $this->gateway->handleWebhook($request);
 
         return response()->json(['status' => 'ok']);

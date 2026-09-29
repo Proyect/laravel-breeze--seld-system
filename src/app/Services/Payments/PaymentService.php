@@ -17,7 +17,9 @@ class PaymentService
 
     public function createPayment(Payment $payment): array
     {
-        if ($payment->currency === 'ARS') {
+        $method = $payment->method;
+
+        if ($method === 'mercadopago' || ($method === null && $payment->currency === 'ARS')) {
             $payment->provider = 'mercadopago';
             $payment->save();
 

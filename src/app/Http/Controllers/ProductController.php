@@ -13,6 +13,8 @@ class ProductController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', Product::class);
+
         $products = Product::all();
 
         return view('products.index', compact('products'));
@@ -20,11 +22,15 @@ class ProductController extends Controller
 
     public function create(): JsonResponse
     {
+        $this->authorize('create', Product::class);
+
         return response()->json(Product::all());
     }
 
     public function store(StoreProductRequest $request): JsonResponse
     {
+        $this->authorize('create', Product::class);
+
         $product = Product::create($this->prepareProductData($request));
 
         return response()->json([
@@ -36,6 +42,8 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
+        $this->authorize('update', $product);
+
         $product->update($this->prepareProductData($request, $product));
 
         return response()->json([
@@ -47,6 +55,8 @@ class ProductController extends Controller
 
     public function destroy(Product $product): JsonResponse
     {
+        $this->authorize('delete', $product);
+
         $this->deleteProductImages($product);
         $product->delete();
 

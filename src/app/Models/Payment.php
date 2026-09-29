@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class Payment extends Model
 {
@@ -37,6 +38,10 @@ class Payment extends Model
 
     public function markAsApproved(): void
     {
+        if ($this->payment_status === 'approved') {
+            return;
+        }
+
         $this->payment_status = 'approved';
         $this->save();
 
@@ -47,7 +52,35 @@ class Payment extends Model
 
     public function markAsRejected(): void
     {
-        $this->payment_status = 'rejected';
-        $this->save();
+        if ($this->payment_status === 'rejected') {
+            return;
+        }
+
+        DB::transaction(function () {
+            $wasApproved = $this->payment_status === 'approved';
+            $this->payment_status = 'rejected';
+            $this->save();
+
+            if ($wasApproved && $this->sale) {
+                $this->sale->restoreStock();
+            }
+        });
+    }
+
+    public function markAsRefunded(): void
+    {
+        if ($this->payment_status === 'refunded') {
+            return;
+        }
+
+        DB::transaction(function () {
+            $wasApproved = $this->payment_status === 'approved';
+            $this->payment_status = 'refunded';
+            $this->save();
+
+            if ($wasApproved && $this->sale) {
+                $this->sale->restoreStock();
+            }
+        });
     }
 }

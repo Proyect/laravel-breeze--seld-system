@@ -11,11 +11,15 @@ class InquiryController extends Controller
 {
     public function index(): View
     {
+        $this->authorize('viewAny', Inquiry::class);
+
         return view('inquiries.index');
     }
 
     public function list(): JsonResponse
     {
+        $this->authorize('viewAny', Inquiry::class);
+
         return response()->json(
             Inquiry::latest()->get()
         );
@@ -23,6 +27,8 @@ class InquiryController extends Controller
 
     public function update(Request $request, Inquiry $inquiry): JsonResponse
     {
+        $this->authorize('update', $inquiry);
+
         $validated = $request->validate([
             'status' => ['required', 'in:pending,read,responded'],
         ]);
@@ -38,6 +44,8 @@ class InquiryController extends Controller
 
     public function destroy(Inquiry $inquiry): JsonResponse
     {
+        $this->authorize('delete', $inquiry);
+
         $inquiry->delete();
 
         return response()->json([

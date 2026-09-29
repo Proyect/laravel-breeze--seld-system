@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Sales;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\CreatesUsers;
 use Tests\TestCase;
 
@@ -63,7 +66,7 @@ class PaymentTest extends TestCase
     {
         $owner = $this->createUser();
         $other = \App\Models\User::factory()->create(['role' => 'user']);
-        $sale = \App\Models\Sales::create([
+        $sale = Sales::create([
             'user_id' => $owner->id,
             'status' => 'pending',
             'total_amount' => 500,
@@ -131,8 +134,115 @@ class PaymentTest extends TestCase
 
     public function test_mercadopago_webhook_endpoint_responds(): void
     {
-        $this->postJson('/webhooks/mercadopago', [])
+        $token = config('services.mercadopago.notification_token');
+
+        $this->postJson("/webhooks/mercadopago?token={$token}", [])
             ->assertOk()
             ->assertJson(['status' => 'ok']);
+    }
+
+    public function test_mercadopago_webhook_approves_payment_and_updates_sale(): void
+    {
+        $user = $this->createUser();
+        $sale = Sales::create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'total_amount' => 500,
+        ]);
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'sale_id' => $sale->id,
+            'method' => 'mercadopago',
+            'status' => 'active',
+            'amount' => 500,
+            'currency' => 'ARS',
+            'payment_status' => 'pending',
+        ]);
+
+        config(['services.mercadopago.access_token' => 'test-token']);
+        $token = config('services.mercadopago.notification_token');
+
+        Http::fake([
+            '*' => Http::response([
+                'external_reference' => (string) $payment->id,
+                'status' => 'approved',
+            ]),
+        ]);
+
+        $this->postJson("/webhooks/mercadopago?token={$token}", [
+            'type' => 'payment',
+            'data' => ['id' => '123456789'],
+        ])->assertOk();
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), 'api.mercadopago.com/v1/payments/');
+        });
+
+        $this->assertEquals('approved', $payment->fresh()->payment_status);
+        $this->assertEquals('processing', $sale->fresh()->status);
+    }
+
+    public function test_mercadopago_webhook_refunded_restores_stock(): void
+    {
+        $user = $this->createUser();
+        $product = Product::create([
+            'name' => 'Web Product',
+            'description' => 'Desc',
+            'price' => 100,
+            'stock' => 10,
+            'status' => 'active',
+        ]);
+        $sale = Sales::create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'total_amount' => 200,
+        ]);
+        $sale->products()->attach($product->id, [
+            'quantity' => 2,
+            'unit_price' => 100,
+        ]);
+        $sale->details()->create([
+            'sales_id' => $sale->id,
+            'product_id' => $product->id,
+            'quantity' => 2,
+            'unit_price' => 100,
+            'subtotal' => 200,
+        ]);
+        $product->decrement('stock', 2);
+
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'sale_id' => $sale->id,
+            'method' => 'mercadopago',
+            'status' => 'active',
+            'amount' => 200,
+            'currency' => 'ARS',
+            'payment_status' => 'approved',
+        ]);
+        $sale->update(['status' => 'processing']);
+
+        config(['services.mercadopago.access_token' => 'test-token']);
+        $token = config('services.mercadopago.notification_token');
+
+        Http::fake([
+            '*' => Http::response([
+                'external_reference' => (string) $payment->id,
+                'status' => 'refunded',
+            ]),
+        ]);
+
+        $this->postJson("/webhooks/mercadopago?token={$token}", [
+            'type' => 'payment',
+            'data' => ['id' => '999999'],
+        ])->assertOk();
+
+        $this->assertEquals('refunded', $payment->fresh()->payment_status);
+        $this->assertEquals(10, $product->fresh()->stock);
+    }
+
+    public function test_mercadopago_webhook_rejects_invalid_token(): void
+    {
+        $this->postJson('/webhooks/mercadopago?token=invalid', [])
+            ->assertForbidden();
     }
 }

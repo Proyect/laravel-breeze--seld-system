@@ -45,6 +45,13 @@ class MercadoPagoGateway implements PaymentGateway
 
     private function createPreferenceViaApi(Payment $payment, string $accessToken, string $appUrl): ?array
     {
+        $notificationToken = Config::get('services.mercadopago.notification_token');
+        $notificationUrl = $appUrl . '/webhooks/mercadopago';
+
+        if ($notificationToken) {
+            $notificationUrl .= '?token=' . urlencode($notificationToken);
+        }
+
         $payload = [
             'items' => [
                 [
@@ -61,7 +68,7 @@ class MercadoPagoGateway implements PaymentGateway
             ],
             'auto_return' => 'approved',
             'external_reference' => (string) $payment->id,
-            'notification_url' => $appUrl . '/webhooks/mercadopago',
+            'notification_url' => $notificationUrl,
         ];
 
         $response = Http::withToken($accessToken)
@@ -122,19 +129,22 @@ class MercadoPagoGateway implements PaymentGateway
             'mercadopago_status' => $status,
         ]);
 
-        $payment->payment_status = match ($status) {
+        $mappedStatus = match ($status) {
             'approved' => 'approved',
             'rejected', 'cancelled' => 'rejected',
             'refunded' => 'refunded',
             default => 'pending',
         };
 
-        if ($payment->payment_status === 'approved') {
-            $payment->markAsApproved();
-        } elseif ($payment->payment_status === 'rejected') {
-            $payment->markAsRejected();
-        } else {
-            $payment->save();
+        if ($payment->payment_status === $mappedStatus) {
+            return;
         }
+
+        match ($mappedStatus) {
+            'approved' => $payment->markAsApproved(),
+            'rejected' => $payment->markAsRejected(),
+            'refunded' => $payment->markAsRefunded(),
+            default => $payment->save(),
+        };
     }
 }

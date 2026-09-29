@@ -12,16 +12,22 @@ class UserController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', User::class);
+
         return view('users.index');
     }
 
     public function create(): JsonResponse
     {
+        $this->authorize('viewAny', User::class);
+
         return response()->json(User::all());
     }
 
     public function store(Request $request): JsonResponse
     {
+        $this->authorize('create', User::class);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'lastName' => ['nullable', 'string', 'max:255'],
@@ -48,6 +54,8 @@ class UserController extends Controller
 
     public function update(Request $request, User $user): JsonResponse
     {
+        $this->authorize('update', $user);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'lastName' => ['nullable', 'string', 'max:255'],
@@ -82,6 +90,8 @@ class UserController extends Controller
                 'mje' => 'No podés eliminar tu propio usuario',
             ], 422);
         }
+
+        $this->authorize('delete', $user);
 
         $user->delete();
 

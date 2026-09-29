@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Models\Sales;
 use App\Services\Payments\PaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class PayController extends Controller
@@ -16,6 +17,8 @@ class PayController extends Controller
 
     public function index(): View
     {
+        $this->authorize('viewAny', Payment::class);
+
         $user = auth()->user();
 
         $query = Payment::with('sale')->latest();
@@ -37,6 +40,8 @@ class PayController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Payment::class);
+
         $data = $request->validate([
             'sale_id' => ['nullable', 'integer', 'exists:sales,id'],
             'amount' => ['required', 'numeric', 'min:0.5'],
@@ -49,12 +54,19 @@ class PayController extends Controller
         if (! empty($data['sale_id'])) {
             $sale = Sales::findOrFail($data['sale_id']);
 
-            if (! auth()->user()->isAdmin() && $sale->user_id !== auth()->id()) {
-                abort(403);
-            }
+            $this->authorize('view', $sale);
 
             if ($sale->status !== 'pending') {
                 return back()->with('error', 'Solo se pueden pagar ventas en estado pending.');
+            }
+
+            $saleCents = (int) round($sale->total_amount * 100);
+            $amountCents = (int) round($data['amount'] * 100);
+
+            if ($saleCents !== $amountCents) {
+                throw ValidationException::withMessages([
+                    'amount' => 'El monto no coincide con el total de la venta.',
+                ]);
             }
         }
 
@@ -109,9 +121,7 @@ class PayController extends Controller
             return null;
         }
 
-        if (! auth()->user()->isAdmin() && $payment->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('view', $payment);
 
         return $payment;
     }
