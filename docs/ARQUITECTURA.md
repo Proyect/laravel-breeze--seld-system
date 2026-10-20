@@ -113,8 +113,10 @@ Acceso restringido por rol (`admin` middleware):
 |--------|-------------|---------|
 | Productos | `ProductController` | CRUD de productos |
 | Usuarios | `UserController` | CRUD de usuarios |
+| Consultas | `InquiryController` | Mensajes del sitio |
 | Ventas | `SalesController` | Gestión de ventas |
 | Pagos | `PayController` | Iniciar y consultar pagos |
+| Dashboard | `DashboardController` | Métricas de ventas, pagos y consultas |
 
 ### 4. Sistema de pagos
 
@@ -146,12 +148,12 @@ Definido en `User.role` y verificado por `EnsureUserIsAdmin`.
 
 ```
 Usuario autenticado
-    → Crea venta (SalesController::store)
-    → Estado: pending
+    → Crea venta desde /sales/create (elige productos y cantidades)
+    → Estado: pending (se descuenta stock)
     → Inicia pago (PayController::store)
     → Redirección a Stripe o Mercado Pago
     → Webhook confirma pago
-    → Estado pago: approved
+    → Estado pago: approved · Estado venta: processing
     → Admin actualiza venta: processing → shipped → completed
 ```
 
@@ -179,6 +181,9 @@ Usuario autenticado
 - CSRF en todos los formularios (excepto webhooks)
 - Middleware `auth` para rutas privadas
 - Middleware `admin` para rutas de administración
+- Los usuarios solo ven y pagan sus propias ventas
+- El estado de pago lo confirman los webhooks (no la URL de retorno)
+- Rate limiting en contacto (`5/min`) y búsqueda (`30/min`)
 - Contraseñas hasheadas con bcrypt
 - Validación via Form Requests
 

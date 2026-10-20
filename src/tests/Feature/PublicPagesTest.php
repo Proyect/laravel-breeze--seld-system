@@ -44,6 +44,13 @@ class PublicPagesTest extends TestCase
             ->assertOk();
     }
 
+    public function test_search_finds_servicios_and_blog(): void
+    {
+        $this->get('/search?q=Laravel')
+            ->assertOk()
+            ->assertSee('Laravel');
+    }
+
     public function test_blog_index_loads(): void
     {
         $this->get('/blog')

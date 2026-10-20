@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class Payment extends Model
 {
     protected $fillable = [
+        'user_id',
         'sale_id',
         'method',
         'status',
@@ -27,5 +29,58 @@ class Payment extends Model
     public function sale(): BelongsTo
     {
         return $this->belongsTo(Sales::class, 'sale_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function markAsApproved(): void
+    {
+        if ($this->payment_status === 'approved') {
+            return;
+        }
+
+        $this->payment_status = 'approved';
+        $this->save();
+
+        if ($this->sale_id && $this->sale && $this->sale->status === 'pending') {
+            $this->sale->update(['status' => 'processing']);
+        }
+    }
+
+    public function markAsRejected(): void
+    {
+        if ($this->payment_status === 'rejected') {
+            return;
+        }
+
+        DB::transaction(function () {
+            $wasApproved = $this->payment_status === 'approved';
+            $this->payment_status = 'rejected';
+            $this->save();
+
+            if ($wasApproved && $this->sale) {
+                $this->sale->restoreStock();
+            }
+        });
+    }
+
+    public function markAsRefunded(): void
+    {
+        if ($this->payment_status === 'refunded') {
+            return;
+        }
+
+        DB::transaction(function () {
+            $wasApproved = $this->payment_status === 'approved';
+            $this->payment_status = 'refunded';
+            $this->save();
+
+            if ($wasApproved && $this->sale) {
+                $this->sale->restoreStock();
+            }
+        });
     }
 }

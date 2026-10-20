@@ -31,6 +31,7 @@
             <div class="modal-body">
                 <p><strong>Nombre:</strong> <span id="view-name"></span></p>
                 <p><strong>Email:</strong> <a id="view-email" href="#"></a></p>
+                <p><strong>Teléfono:</strong> <span id="view-phone"></span></p>
                 <p><strong>Fecha:</strong> <span id="view-date"></span></p>
                 <hr>
                 <p id="view-message" class="mb-0"></p>

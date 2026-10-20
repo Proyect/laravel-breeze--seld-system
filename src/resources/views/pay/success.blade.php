@@ -7,6 +7,11 @@
             <h2 class="mb-3">¡Pago exitoso!</h2>
             @if($payment)
                 <p>Pago #{{ $payment->id }} — {{ $payment->currency }} {{ number_format($payment->amount, 2) }}</p>
+                @if($payment->payment_status === 'approved')
+                    <p class="text-success">El pago fue confirmado.</p>
+                @else
+                    <p class="text-muted">El pago quedó registrado. La confirmación final llega cuando la pasarela notifica al sistema.</p>
+                @endif
             @endif
             <a href="{{ route('dashboard') }}" class="btn btn-primary mt-3">Ir al panel</a>
             <a href="/" class="btn btn-outline-secondary mt-3">Volver al inicio</a>

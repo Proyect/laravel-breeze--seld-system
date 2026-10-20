@@ -17,6 +17,7 @@ class StoreSalesRequest extends FormRequest
             'products' => ['required', 'array', 'min:1'],
             'products.*' => ['integer', 'min:1'],
             'total_amount' => ['nullable', 'numeric', 'min:0'],
+            'idempotency_key' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

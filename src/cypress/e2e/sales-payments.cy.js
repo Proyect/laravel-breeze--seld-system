@@ -6,6 +6,16 @@ describe('Ventas y pagos', () => {
   it('muestra la página de ventas', () => {
     cy.visit('/sales')
     cy.contains('Ventas').should('be.visible')
+    cy.contains('Nueva venta').should('be.visible')
+  })
+
+  it('permite crear una venta desde el formulario', () => {
+    cy.visit('/sales/create')
+    cy.contains('Nueva venta').should('be.visible')
+    cy.get('.qty-input').first().clear().type('1')
+    cy.get('#submit-sale').should('not.be.disabled').click()
+    cy.url().should('match', /\/sales\/\d+/)
+    cy.contains('pending').should('be.visible')
   })
 
   it('muestra la página de pagos', () => {

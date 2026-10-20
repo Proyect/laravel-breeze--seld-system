@@ -30,6 +30,35 @@ class ContactTest extends TestCase
         ]);
     }
 
+    public function test_contact_form_stores_optional_phone(): void
+    {
+        Mail::fake();
+
+        $this->from('/')
+            ->post('/contacto', [
+                'name' => 'Ana',
+                'email' => 'ana@example.com',
+                'phone' => '+54 9 387 555-0000',
+                'company' => 'PyME SA',
+                'service' => 'desarrollo',
+                'message' => 'Necesito un presupuesto.',
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('inquiries', [
+            'email' => 'ana@example.com',
+            'phone' => '+54 9 387 555-0000',
+        ]);
+
+        $this->assertDatabaseHas('inquiries', [
+            'email' => 'ana@example.com',
+        ]);
+
+        $inquiry = Inquiry::where('email', 'ana@example.com')->first();
+        $this->assertStringContainsString('Empresa: PyME SA', $inquiry->message);
+        $this->assertStringContainsString('Servicio: desarrollo', $inquiry->message);
+    }
+
     public function test_contact_form_requires_valid_data(): void
     {
         $this->from('/')

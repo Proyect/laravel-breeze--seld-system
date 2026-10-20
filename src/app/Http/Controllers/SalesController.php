@@ -6,74 +6,79 @@ use App\Http\Requests\StoreSalesRequest;
 use App\Http\Requests\UpdateSalesRequest;
 use App\Models\Product;
 use App\Models\Sales;
-use App\Models\SalesDetail;
+use App\Services\Sales\CreateSaleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class SalesController extends Controller
 {
+    public function __construct(private CreateSaleService $createSaleService)
+    {
+    }
+
     public function index(): View
     {
+        $this->authorize('viewAny', Sales::class);
+
         $query = Sales::with(['user', 'products'])->latest();
 
-        if (auth()->user()->role !== 'admin') {
+        if (! auth()->user()->isAdmin()) {
             $query->where('user_id', auth()->id());
         }
 
-        $sales = $query->get();
+        $sales = $query->paginate(15);
 
         return view('sales.index', compact('sales'));
     }
 
+    public function create(): View
+    {
+        $this->authorize('create', Sales::class);
+
+        $products = Product::where('status', 'active')
+            ->where('stock', '>', 0)
+            ->orderBy('name')
+            ->get();
+
+        return view('sales.create', compact('products'));
+    }
+
     public function list(): JsonResponse
     {
+        $this->authorize('viewAny', Sales::class);
+
         $query = Sales::with(['user', 'products'])->latest();
 
-        if (auth()->user()->role !== 'admin') {
+        if (! auth()->user()->isAdmin()) {
             $query->where('user_id', auth()->id());
         }
 
-        return response()->json($query->get());
+        return response()->json($query->paginate(15));
     }
 
     public function store(StoreSalesRequest $request): RedirectResponse|JsonResponse
     {
-        $sale = DB::transaction(function () use ($request) {
-            $products = Product::whereIn('id', array_keys($request->products))->get();
-            $total = 0;
+        $this->authorize('create', Sales::class);
 
-            $sale = Sales::create([
-                'user_id' => auth()->id(),
-                'status' => 'pending',
-                'total_amount' => 0,
-            ]);
-
-            foreach ($products as $product) {
-                $quantity = (int) ($request->products[$product->id] ?? 1);
-                $unitPrice = $product->price;
-                $subtotal = $unitPrice * $quantity;
-                $total += $subtotal;
-
-                $sale->products()->attach($product->id, [
-                    'quantity' => $quantity,
-                    'unit_price' => $unitPrice,
-                ]);
-
-                SalesDetail::create([
-                    'sales_id' => $sale->id,
-                    'product_id' => $product->id,
-                    'quantity' => $quantity,
-                    'unit_price' => $unitPrice,
-                    'subtotal' => $subtotal,
-                ]);
+        try {
+            $sale = $this->createSaleService->execute(
+                $request->validated()['products'],
+                auth()->id(),
+                $request->validated()['idempotency_key'] ?? null,
+            );
+        } catch (ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'result' => false,
+                    'mje' => collect($e->errors())->flatten()->first(),
+                    'errors' => $e->errors(),
+                ], 422);
             }
 
-            $sale->update(['total_amount' => $total]);
-
-            return $sale->load('products');
-        });
+            throw $e;
+        }
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -88,35 +93,33 @@ class SalesController extends Controller
 
     public function show(Sales $sales): View
     {
-        if (auth()->user()->role !== 'admin' && $sales->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('view', $sales);
 
         $sales->load(['user', 'products', 'payments']);
 
         return view('sales.show', ['sale' => $sales]);
     }
 
-    public function update(UpdateSalesRequest $request, Sales $sales): JsonResponse
+    public function update(UpdateSalesRequest $request, Sales $sales): RedirectResponse|JsonResponse
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        $this->authorize('update', $sales);
 
         $sales->update($request->validated());
 
-        return response()->json([
-            'result' => true,
-            'mje' => 'Venta actualizada correctamente',
-            'data' => $sales,
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'result' => true,
+                'mje' => 'Venta actualizada correctamente',
+                'data' => $sales,
+            ]);
+        }
+
+        return back()->with('success', 'Estado de la venta actualizado.');
     }
 
     public function destroy(Sales $sales): JsonResponse
     {
-        if (auth()->user()->role !== 'admin' && $sales->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('delete', $sales);
 
         $sales->delete();
 
