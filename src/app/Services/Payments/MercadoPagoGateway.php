@@ -46,25 +46,25 @@ class MercadoPagoGateway implements PaymentGateway
     private function createPreferenceViaApi(Payment $payment, string $accessToken, string $appUrl): ?array
     {
         $notificationToken = Config::get('services.mercadopago.notification_token');
-        $notificationUrl = $appUrl . '/webhooks/mercadopago';
+        $notificationUrl = $appUrl.'/webhooks/mercadopago';
 
         if ($notificationToken) {
-            $notificationUrl .= '?token=' . urlencode($notificationToken);
+            $notificationUrl .= '?token='.urlencode($notificationToken);
         }
 
         $payload = [
             'items' => [
                 [
-                    'title' => 'Pago #' . $payment->id,
+                    'title' => 'Pago #'.$payment->id,
                     'quantity' => 1,
                     'unit_price' => (float) $payment->amount,
                     'currency_id' => $payment->currency ?: 'ARS',
                 ],
             ],
             'back_urls' => [
-                'success' => $appUrl . '/payments/success?payment_id=' . $payment->id,
-                'failure' => $appUrl . '/payments/cancel?payment_id=' . $payment->id,
-                'pending' => $appUrl . '/payments/success?payment_id=' . $payment->id,
+                'success' => $appUrl.'/payments/success?payment_id='.$payment->id,
+                'failure' => $appUrl.'/payments/cancel?payment_id='.$payment->id,
+                'pending' => $appUrl.'/payments/success?payment_id='.$payment->id,
             ],
             'auto_return' => 'approved',
             'external_reference' => (string) $payment->id,
@@ -73,6 +73,7 @@ class MercadoPagoGateway implements PaymentGateway
 
         $response = Http::withToken($accessToken)
             ->acceptJson()
+            ->timeout(15)
             ->post('https://api.mercadopago.com/checkout/preferences', $payload);
 
         if ($response->successful()) {
@@ -103,10 +104,16 @@ class MercadoPagoGateway implements PaymentGateway
         }
 
         $response = Http::withToken($accessToken)
-            ->get("https://api.mercadopago.com/v1/payments/{$dataId}");
+            ->acceptJson()
+            ->timeout(15)
+            ->get('https://api.mercadopago.com/v1/payments/'.rawurlencode((string) $dataId));
 
         if (! $response->successful()) {
-            return;
+            Log::warning('Mercado Pago: no se pudo consultar el pago', [
+                'mp_payment_id' => $dataId,
+                'status' => $response->status(),
+            ]);
+            abort(502, 'No se pudo consultar el pago.');
         }
 
         $paymentData = $response->json();
@@ -129,6 +136,17 @@ class MercadoPagoGateway implements PaymentGateway
             'mercadopago_status' => $status,
         ]);
 
+        if ($status === 'approved' && ! $this->amountMatches($payment, $paymentData)) {
+            Log::error('Mercado Pago: monto/moneda pagados no coinciden con el pago', [
+                'payment_id' => $payment->id,
+                'expected' => [$payment->amount, $payment->currency],
+                'received' => [$paymentData['transaction_amount'] ?? null, $paymentData['currency_id'] ?? null],
+            ]);
+            $payment->save();
+
+            return;
+        }
+
         $mappedStatus = match ($status) {
             'approved' => 'approved',
             'rejected', 'cancelled' => 'rejected',
@@ -146,5 +164,18 @@ class MercadoPagoGateway implements PaymentGateway
             'refunded' => $payment->markAsRefunded(),
             default => $payment->save(),
         };
+    }
+
+    private function amountMatches(Payment $payment, array $paymentData): bool
+    {
+        if (! isset($paymentData['transaction_amount'])) {
+            return false;
+        }
+
+        $paidCents = (int) round(((float) $paymentData['transaction_amount']) * 100);
+        $expectedCents = (int) round($payment->amount * 100);
+        $currency = strtoupper((string) ($paymentData['currency_id'] ?? $payment->currency));
+
+        return $paidCents === $expectedCents && $currency === strtoupper($payment->currency);
     }
 }

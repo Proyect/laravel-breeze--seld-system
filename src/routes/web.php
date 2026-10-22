@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
@@ -14,6 +13,7 @@ use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('site.index');
@@ -21,14 +21,14 @@ Route::get('/', function () {
 
 // Sitio público
 Route::get('/site', [SiteController::class, 'index'])->name('site.index');
-Route::get('/site/{site}', [SiteController::class, 'getSite'])->name('site.detail');
+Route::get('/site/{site}', [SiteController::class, 'getSite'])->where('site', '[A-Za-z0-9_-]+(\.[A-Za-z0-9_-]+)*')->name('site.detail');
 Route::match(['get', 'post'], '/search', [SiteController::class, 'search'])->middleware('throttle:30,1')->name('site.search');
 Route::post('/contacto', [ContactController::class, 'submit'])->middleware('throttle:5,1')->name('contact.submit');
 
 // Servicios
 Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');
 Route::get('/servicios/{slug}', [ServicioController::class, 'detalle'])->name('servicios.detalle');
-Route::post('/servicios/{slug}/relevamiento', [ServicioController::class, 'relevamiento'])->name('servicios.relevamiento');
+Route::post('/servicios/{slug}/relevamiento', [ServicioController::class, 'relevamiento'])->middleware('throttle:5,1')->name('servicios.relevamiento');
 Route::get('/api/tecnologias/{categoria}', [ServicioController::class, 'tecnologiasPorCategoria'])->name('api.tecnologias.categoria');
 
 // Blog
@@ -46,8 +46,10 @@ Route::get('/page/{any}', function () {
 })->where('any', '.*');
 
 // Webhooks (sin CSRF)
-Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'handle'])->name('webhooks.mercadopago');
-Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])->name('webhooks.stripe');
+Route::middleware('throttle:120,1')->group(function () {
+    Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'handle'])->name('webhooks.mercadopago');
+    Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])->name('webhooks.stripe');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -58,14 +60,14 @@ Route::middleware('auth')->group(function () {
 
     // Pagos
     Route::get('/payments', [PayController::class, 'index'])->name('payments.index');
-    Route::post('/payments', [PayController::class, 'store'])->name('payments.store');
+    Route::post('/payments', [PayController::class, 'store'])->middleware('throttle:10,1')->name('payments.store');
     Route::get('/payments/success', [PayController::class, 'success'])->name('payments.success');
     Route::get('/payments/cancel', [PayController::class, 'cancel'])->name('payments.cancel');
 
     // Ventas (usuarios autenticados)
     Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
     Route::get('/sales/create', [SalesController::class, 'create'])->name('sales.create');
-    Route::post('/sales', [SalesController::class, 'store'])->name('sales.store');
+    Route::post('/sales', [SalesController::class, 'store'])->middleware('throttle:20,1')->name('sales.store');
     Route::get('/sales/{sales}', [SalesController::class, 'show'])->name('sales.show');
     Route::put('/sales/{sales}', [SalesController::class, 'update'])->name('sales.update');
     Route::delete('/sales/{sales}', [SalesController::class, 'destroy'])->name('sales.destroy');

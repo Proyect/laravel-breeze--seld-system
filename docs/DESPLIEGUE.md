@@ -38,7 +38,10 @@ php-zip php-bcmath php-intl php-gd php-redis (opcional)
 - [ ] SMTP configurado para emails
 - [ ] Claves Stripe/Mercado Pago de producción
 - [ ] Webhooks configurados con URL pública
-- [ ] Contraseñas de demo cambiadas
+- [ ] `MERCADOPAGO_NOTIFICATION_TOKEN` y `STRIPE_WEBHOOK_SECRET` definidos
+- [ ] `SESSION_SECURE_COOKIE=true` y `LOG_LEVEL=error`
+- [ ] `ADMIN_EMAIL` / `ADMIN_PASSWORD` definidos para el primer seed (en producción el seeder no crea usuarios demo)
+- [ ] Cron del scheduler activo (libera ventas pendientes vencidas)
 - [ ] Backups automatizados
 
 ---
@@ -73,7 +76,8 @@ nano .env  # Editar variables de producción
 
 ```bash
 php artisan migrate --force
-php artisan db:seed --force  # Solo primera vez
+php artisan db:seed --force  # Solo primera vez: crea el admin desde ADMIN_EMAIL/ADMIN_PASSWORD
+php artisan storage:link
 ```
 
 ### 5. Optimizar Laravel
@@ -209,6 +213,8 @@ sudo supervisorctl restart infrasoft-worker:*
 - Rate limiting en login (Laravel throttle)
 - Mantener dependencias actualizadas (`composer audit`, `npm audit`)
 - Cambiar contraseñas de usuarios de prueba
+- Con `APP_ENV=production` la app fuerza URLs `https://` y envía cabeceras de seguridad (HSTS, `X-Frame-Options`, `nosniff`, `Referrer-Policy`)
+- Si la app queda detrás de un proxy/CDN que termina TLS, configurar `trustProxies` en `bootstrap/app.php`
 
 ---
 

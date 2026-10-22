@@ -29,6 +29,7 @@ class SalePolicy
 
     public function delete(User $user, Sales $sales): bool
     {
-        return $user->isAdmin() || $sales->user_id === $user->id;
+        return $user->isAdmin()
+            || ($sales->user_id === $user->id && $sales->status === 'pending');
     }
 }

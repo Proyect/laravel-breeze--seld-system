@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Sales;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\CreatesUsers;
@@ -12,7 +13,7 @@ use Tests\TestCase;
 
 class PaymentTest extends TestCase
 {
-    use RefreshDatabase, CreatesUsers;
+    use CreatesUsers, RefreshDatabase;
 
     public function test_authenticated_user_can_view_payments(): void
     {
@@ -65,7 +66,7 @@ class PaymentTest extends TestCase
     public function test_user_cannot_pay_another_users_sale(): void
     {
         $owner = $this->createUser();
-        $other = \App\Models\User::factory()->create(['role' => 'user']);
+        $other = User::factory()->create(['role' => 'user']);
         $sale = Sales::create([
             'user_id' => $owner->id,
             'status' => 'pending',
@@ -84,7 +85,7 @@ class PaymentTest extends TestCase
     public function test_user_only_sees_own_payments(): void
     {
         $user = $this->createUser();
-        $other = \App\Models\User::factory()->create(['role' => 'user']);
+        $other = User::factory()->create(['role' => 'user']);
 
         Payment::create([
             'user_id' => $other->id,
@@ -125,11 +126,99 @@ class PaymentTest extends TestCase
             ->assertOk();
     }
 
-    public function test_stripe_webhook_endpoint_responds(): void
+    public function test_stripe_webhook_without_secret_returns_service_unavailable(): void
     {
-        $this->postJson('/webhooks/stripe', [])
-            ->assertOk()
-            ->assertJson(['status' => 'ok']);
+        config(['services.stripe.webhook_secret' => null]);
+
+        $this->postJson('/webhooks/stripe', [])->assertStatus(503);
+    }
+
+    public function test_stripe_webhook_rejects_invalid_signature(): void
+    {
+        config(['services.stripe.webhook_secret' => 'whsec_test']);
+
+        $this->call('POST', '/webhooks/stripe', [], [], [], [
+            'HTTP_STRIPE_SIGNATURE' => 't=1,v1=invalid',
+            'CONTENT_TYPE' => 'application/json',
+        ], '{}')->assertStatus(400);
+    }
+
+    public function test_stripe_webhook_approves_paid_session_with_matching_amount(): void
+    {
+        $payment = $this->createStripePayment(150);
+
+        $this->postSignedStripeEvent($this->checkoutCompletedEvent('cs_test_1', 15000, 'usd'))
+            ->assertOk();
+
+        $this->assertEquals('approved', $payment->fresh()->payment_status);
+    }
+
+    public function test_stripe_webhook_ignores_session_with_mismatched_amount(): void
+    {
+        $payment = $this->createStripePayment(150);
+
+        $this->postSignedStripeEvent($this->checkoutCompletedEvent('cs_test_1', 100, 'usd'))
+            ->assertOk();
+
+        $this->assertEquals('pending', $payment->fresh()->payment_status);
+    }
+
+    public function test_stripe_webhook_does_not_approve_unpaid_session(): void
+    {
+        $payment = $this->createStripePayment(150);
+
+        $this->postSignedStripeEvent($this->checkoutCompletedEvent('cs_test_1', 15000, 'usd', 'unpaid'))
+            ->assertOk();
+
+        $this->assertEquals('pending', $payment->fresh()->payment_status);
+    }
+
+    private function createStripePayment(float $amount): Payment
+    {
+        return Payment::create([
+            'user_id' => $this->createUser()->id,
+            'method' => 'stripe',
+            'provider' => 'stripe',
+            'provider_payment_id' => 'cs_test_1',
+            'status' => 'active',
+            'amount' => $amount,
+            'currency' => 'USD',
+            'payment_status' => 'pending',
+        ]);
+    }
+
+    private function checkoutCompletedEvent(string $sessionId, int $amountTotal, string $currency, string $paymentStatus = 'paid'): array
+    {
+        return [
+            'id' => 'evt_test',
+            'object' => 'event',
+            'type' => 'checkout.session.completed',
+            'data' => [
+                'object' => [
+                    'id' => $sessionId,
+                    'object' => 'checkout.session',
+                    'amount_total' => $amountTotal,
+                    'currency' => $currency,
+                    'payment_status' => $paymentStatus,
+                    'payment_intent' => 'pi_test',
+                ],
+            ],
+        ];
+    }
+
+    private function postSignedStripeEvent(array $event)
+    {
+        $secret = 'whsec_test';
+        config(['services.stripe.webhook_secret' => $secret]);
+
+        $payload = json_encode($event);
+        $timestamp = time();
+        $signature = hash_hmac('sha256', "{$timestamp}.{$payload}", $secret);
+
+        return $this->call('POST', '/webhooks/stripe', [], [], [], [
+            'HTTP_STRIPE_SIGNATURE' => "t={$timestamp},v1={$signature}",
+            'CONTENT_TYPE' => 'application/json',
+        ], $payload);
     }
 
     public function test_mercadopago_webhook_endpoint_responds(): void
@@ -166,6 +255,8 @@ class PaymentTest extends TestCase
             '*' => Http::response([
                 'external_reference' => (string) $payment->id,
                 'status' => 'approved',
+                'transaction_amount' => 500,
+                'currency_id' => 'ARS',
             ]),
         ]);
 
@@ -244,5 +335,37 @@ class PaymentTest extends TestCase
     {
         $this->postJson('/webhooks/mercadopago?token=invalid', [])
             ->assertForbidden();
+    }
+
+    public function test_mercadopago_webhook_does_not_approve_mismatched_amount(): void
+    {
+        $user = $this->createUser();
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'method' => 'mercadopago',
+            'status' => 'active',
+            'amount' => 500,
+            'currency' => 'ARS',
+            'payment_status' => 'pending',
+        ]);
+
+        config(['services.mercadopago.access_token' => 'test-token']);
+        $token = config('services.mercadopago.notification_token');
+
+        Http::fake([
+            '*' => Http::response([
+                'external_reference' => (string) $payment->id,
+                'status' => 'approved',
+                'transaction_amount' => 1,
+                'currency_id' => 'ARS',
+            ]),
+        ]);
+
+        $this->postJson("/webhooks/mercadopago?token={$token}", [
+            'type' => 'payment',
+            'data' => ['id' => '123'],
+        ])->assertOk();
+
+        $this->assertEquals('pending', $payment->fresh()->payment_status);
     }
 }

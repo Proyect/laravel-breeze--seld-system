@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Sales extends Model
 {
@@ -42,5 +43,21 @@ class Sales extends Model
         foreach ($this->details()->get() as $detail) {
             Product::where('id', $detail->product_id)->increment('stock', $detail->quantity);
         }
+    }
+
+    public function hasApprovedPayment(): bool
+    {
+        return $this->payments()->where('payment_status', 'approved')->exists();
+    }
+
+    public function deleteAndRestoreStock(): void
+    {
+        DB::transaction(function () {
+            if ($this->status === 'pending') {
+                $this->restoreStock();
+            }
+
+            $this->delete();
+        });
     }
 }

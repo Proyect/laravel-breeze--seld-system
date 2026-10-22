@@ -63,7 +63,7 @@ Abrir **http://localhost:8000**
 | Frontend | Tailwind 4, Vite, Bootstrap 5 |
 | Base de datos | SQLite (dev) / MySQL (prod) |
 | Pagos | Stripe + Mercado Pago |
-| Tests | PHPUnit (41) + Cypress (21) |
+| Tests | PHPUnit (75) + Cypress (21) |
 
 ---
 
@@ -88,7 +88,7 @@ Ver [referencia completa de rutas](docs/RUTAS.md).
 
 ```powershell
 cd src
-.\composer.bat run test      # PHPUnit — 41 tests
+.\composer.bat run test      # PHPUnit — 75 tests
 npm run cypress:run        # Cypress — 21 tests (servidor activo)
 .\test.bat                 # Ambos (Windows)
 ```

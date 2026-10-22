@@ -26,3 +26,7 @@ Thumbs.db
 yarn-error.log
 cypress/screenshots/
 cypress/videos/
+
+# Copias accidentales de .env (p. ej. ".env copy")
+.env *
+*.env.bak

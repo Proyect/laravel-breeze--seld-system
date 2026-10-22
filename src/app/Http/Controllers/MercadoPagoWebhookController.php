@@ -18,11 +18,11 @@ class MercadoPagoWebhookController extends Controller
     {
         $expected = config('services.mercadopago.notification_token');
 
-        if ($expected === null) {
+        if (! is_string($expected) || $expected === '') {
             abort(403, 'Token de notificación no configurado.');
         }
 
-        if ($request->query('token') !== $expected) {
+        if (! hash_equals($expected, (string) $request->query('token'))) {
             abort(403, 'Token de notificación inválido.');
         }
 

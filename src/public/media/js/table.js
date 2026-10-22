@@ -1,3 +1,7 @@
+function esc(value) {
+    return $('<div>').text(value == null ? '' : String(value)).html().replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function Load(url = "/users/create") {
     if ($.fn.DataTable.isDataTable('#data')) {
         $('#data').DataTable().destroy();
@@ -6,16 +10,16 @@ function Load(url = "/users/create") {
     $.getJSON(url, function (data) {
         $.each(data, function (index, item) {
             const row = '<tr>' +
-                '<td>' + item.name + '</td>' +
-                '<td>' + (item.lastName || '') + '</td>' +
-                '<td>' + (item.phone || '') + '</td>' +
-                '<td>' + item.email + '</td>' +
-                '<td><i class="bi bi-pencil-square text-primary" title="Edit" name="edt" data-id="' + item.id +
-                '" data-name="' + item.name + '" data-lastname="' + (item.lastName || '') +
-                '" data-cuil="' + (item.cuil || '') + '" data-phone="' + (item.phone || '') +
-                '" data-email="' + item.email + '" data-address="' + (item.address || '') +
-                '" data-role="' + (item.role || 'user') +
-                '" onclick="FormEdit(this)"></i> - <i class="bi bi-x-square text-danger" title="Delete" data-id="' + item.id + '" onclick="FormDelete(this)"></i></td>' +
+                '<td>' + esc(item.name) + '</td>' +
+                '<td>' + esc(item.lastName) + '</td>' +
+                '<td>' + esc(item.phone) + '</td>' +
+                '<td>' + esc(item.email) + '</td>' +
+                '<td><i class="bi bi-pencil-square text-primary" title="Edit" name="edt" data-id="' + esc(item.id) +
+                '" data-name="' + esc(item.name) + '" data-lastname="' + esc(item.lastName) +
+                '" data-cuil="' + esc(item.cuil) + '" data-phone="' + esc(item.phone) +
+                '" data-email="' + esc(item.email) + '" data-address="' + esc(item.address) +
+                '" data-role="' + esc(item.role || 'user') +
+                '" onclick="FormEdit(this)"></i> - <i class="bi bi-x-square text-danger" title="Delete" data-id="' + esc(item.id) + '" onclick="FormDelete(this)"></i></td>' +
                 '</tr>';
             $('tbody').append(row);
         });
