@@ -121,7 +121,9 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 **Webhook URL en Stripe:** `https://tudominio.com/webhooks/stripe`
 
-Eventos recomendados: `checkout.session.completed`, `payment_intent.succeeded`
+Eventos recomendados: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, `payment_intent.payment_failed`, `charge.refunded`.
+
+Si `STRIPE_WEBHOOK_SECRET` no está configurado el webhook responde 503; con firma inválida responde 400.
 
 ---
 
@@ -132,12 +134,14 @@ Obtener credenciales en [mercadopago.com.ar/developers](https://www.mercadopago.
 ```env
 MERCADOPAGO_ACCESS_TOKEN=APP_USR-...
 MERCADOPAGO_PUBLIC_KEY=APP_USR-...
+MERCADOPAGO_NOTIFICATION_TOKEN=un_token_aleatorio_largo
 ```
 
 | Variable | Uso |
 |----------|-----|
 | `MERCADOPAGO_ACCESS_TOKEN` | Token de acceso (producción o sandbox) |
 | `MERCADOPAGO_PUBLIC_KEY` | Clave pública para checkout |
+| `MERCADOPAGO_NOTIFICATION_TOKEN` | **Obligatorio.** Se agrega como `?token=` a la `notification_url`; sin él el webhook responde 403 |
 
 **Webhook URL:** `https://tudominio.com/webhooks/mercadopago`
 
@@ -195,6 +199,15 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 MERCADOPAGO_ACCESS_TOKEN=APP_USR-...
 MERCADOPAGO_PUBLIC_KEY=APP_USR-...
+MERCADOPAGO_NOTIFICATION_TOKEN=...
+
+SESSION_SECURE_COOKIE=true
+LOG_LEVEL=error
+SALES_PENDING_TTL_HOURS=48
+
+# Solo para el primer `php artisan db:seed --force`
+ADMIN_EMAIL=admin@infrasoft.com.ar
+ADMIN_PASSWORD=una_contraseña_larga_y_unica
 ```
 
 ---

@@ -1,3 +1,7 @@
+function esc(value) {
+    return $('<div>').text(value == null ? '' : String(value)).html().replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function Load(url = "/products/create") {
     if ($.fn.DataTable.isDataTable('#data')) {
         $('#data').DataTable().destroy();
@@ -7,15 +11,15 @@ function Load(url = "/products/create") {
         $.each(data, function (index, item) {
             const images = item.images ? JSON.stringify(item.images) : '[]';
             const row = '<tr>' +
-                '<td>' + item.name + '</td>' +
-                '<td>' + item.description + '</td>' +
-                '<td>' + item.price + '</td>' +
-                '<td>' + item.status + '</td>' +
-                '<td><i class="bi bi-pencil-square text-primary" title="Edit" name="edt" data-id="' + item.id +
-                '" data-name="' + item.name + '" data-description="' + item.description +
-                '" data-price="' + item.price + '" data-stock="' + item.stock +
-                '" data-status="' + item.status + '" data-images=\'' + images + '\'' +
-                ' onclick="FormEdit(this)"></i> - <i class="bi bi-x-square text-danger" title="Delete" name="del" data-id="' + item.id + '" onclick="FormDelete(this)"></i></td>' +
+                '<td>' + esc(item.name) + '</td>' +
+                '<td>' + esc(item.description) + '</td>' +
+                '<td>' + esc(item.price) + '</td>' +
+                '<td>' + esc(item.status) + '</td>' +
+                '<td><i class="bi bi-pencil-square text-primary" title="Edit" name="edt" data-id="' + esc(item.id) +
+                '" data-name="' + esc(item.name) + '" data-description="' + esc(item.description) +
+                '" data-price="' + esc(item.price) + '" data-stock="' + esc(item.stock) +
+                '" data-status="' + esc(item.status) + '" data-images="' + esc(images) + '"' +
+                ' onclick="FormEdit(this)"></i> - <i class="bi bi-x-square text-danger" title="Delete" name="del" data-id="' + esc(item.id) + '" onclick="FormDelete(this)"></i></td>' +
                 '</tr>';
             $('tbody').append(row);
         });
@@ -42,7 +46,7 @@ function showImagePreview(images) {
     if (!images || !images.length) return;
     const img = Array.isArray(images) ? images[0] : images;
     if (img) {
-        preview.html('<img src="' + img + '" alt="Vista previa" class="img-thumbnail" style="max-height:120px">');
+        preview.append($('<img>', { src: img, alt: 'Vista previa', class: 'img-thumbnail', style: 'max-height:120px' }));
     }
 }
 

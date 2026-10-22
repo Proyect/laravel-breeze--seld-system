@@ -8,7 +8,7 @@ Guía de pruebas automatizadas: PHPUnit y Cypress.
 
 | Suite | Framework | Tests | Ubicación |
 |-------|-----------|-------|-----------|
-| Backend | PHPUnit 11 | 50 | `src/tests/` |
+| Backend | PHPUnit 11 | 75 | `src/tests/` |
 | E2E | Cypress 15 | 22 | `src/cypress/e2e/` |
 
 ---

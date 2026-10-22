@@ -14,6 +14,7 @@ use App\Policies\SalePolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
+        URL::forceHttps($this->app->isProduction());
 
         Gate::policy(Sales::class, SalePolicy::class);
         Gate::policy(Payment::class, PaymentPolicy::class);

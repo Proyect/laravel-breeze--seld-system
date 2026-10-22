@@ -14,9 +14,7 @@ use Illuminate\View\View;
 
 class SalesController extends Controller
 {
-    public function __construct(private CreateSaleService $createSaleService)
-    {
-    }
+    public function __construct(private CreateSaleService $createSaleService) {}
 
     public function index(): View
     {
@@ -121,7 +119,14 @@ class SalesController extends Controller
     {
         $this->authorize('delete', $sales);
 
-        $sales->delete();
+        if ($sales->hasApprovedPayment()) {
+            return response()->json([
+                'result' => false,
+                'mje' => 'No se puede eliminar una venta con pagos aprobados.',
+            ], 422);
+        }
+
+        $sales->deleteAndRestoreStock();
 
         return response()->json([
             'result' => true,

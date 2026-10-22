@@ -6,11 +6,18 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->isProduction()) {
+            $this->seedProductionAdmin();
+
+            return;
+        }
+
         User::factory()->create([
             'name' => 'Admin',
             'lastName' => 'Sistema',
@@ -50,5 +57,28 @@ class DatabaseSeeder extends Seeder
             'stock' => 50,
             'status' => 'active',
         ]);
+    }
+
+    /**
+     * En producción no se crean usuarios ni productos demo: solo un admin con
+     * credenciales tomadas de ADMIN_EMAIL / ADMIN_PASSWORD.
+     */
+    private function seedProductionAdmin(): void
+    {
+        $email = env('ADMIN_EMAIL');
+        $password = env('ADMIN_PASSWORD');
+
+        if (! $email || ! $password || strlen($password) < 12) {
+            throw new RuntimeException('En producción definí ADMIN_EMAIL y ADMIN_PASSWORD (mínimo 12 caracteres) antes de ejecutar db:seed.');
+        }
+
+        User::firstOrCreate(
+            ['email' => $email],
+            [
+                'name' => env('ADMIN_NAME', 'Admin'),
+                'password' => Hash::make($password),
+                'role' => 'admin',
+            ],
+        );
     }
 }

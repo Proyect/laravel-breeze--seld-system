@@ -163,9 +163,12 @@ Si las variables de entorno están vacías:
 ## Seguridad
 
 - Los webhooks están excluidos de verificación CSRF (`bootstrap/app.php`)
-- Stripe verifica la firma con `STRIPE_WEBHOOK_SECRET`
-- Mercado Pago valida el `access_token` en cada consulta
+- Stripe verifica la firma con `STRIPE_WEBHOOK_SECRET` (400 si es inválida, 503 si falta el secret)
+- Mercado Pago exige `?token=MERCADOPAGO_NOTIFICATION_TOKEN` en la notificación y luego consulta el pago a la API con el `access_token`
+- Antes de aprobar, ambos gateways verifican que el monto y la moneda cobrados coincidan con el registro `payments`; si no coinciden el pago queda `pending` y se registra un error en el log
+- Stripe solo aprueba cuando la sesión tiene `payment_status = paid`
 - Los montos se validan server-side antes de crear el pago
+- Las ventas pendientes sin pago aprobado se liberan (stock devuelto) tras `SALES_PENDING_TTL_HOURS` vía `sales:release-expired` (scheduler)
 
 ---
 
